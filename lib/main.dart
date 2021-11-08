@@ -4,11 +4,14 @@
 // opens a [SnackBar], while the second action navigates to a new page.
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import './favorites.dart';
 import './book_lib.dart';
 import './auth.dart';
+import './user_state.dart';
 
-void main() => runApp(const MyApp());
+void main() => runApp(
+    ChangeNotifierProvider(create: (ctx) => UserState(), child: const MyApp()));
 
 /// This is the main application widget.
 class MyApp extends StatelessWidget {
@@ -36,31 +39,28 @@ class MyStatelessWidget extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Czytelnia'),
         actions: <Widget>[
-          IconButton( 
-            icon: const Icon(Icons.login),
-            onPressed: () => showDialog<String>(
-              context: context,
-              builder: (BuildContext context) => Auth()
-            )
-          ),
+          IconButton(
+              icon: const Icon(Icons.login),
+              onPressed: () => showDialog<String>(
+                  context: context, builder: (BuildContext context) => Auth())),
           IconButton(
             icon: const Icon(Icons.plagiarism),
             tooltip: 'Show Snackbar',
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute<void>(
-                builder: (BuildContext context) {
-                  return BookLib();
-                }));
+              Navigator.push(context,
+                  MaterialPageRoute<void>(builder: (BuildContext context) {
+                return BookLib();
+              }));
             },
           ),
           IconButton(
             icon: const Icon(Icons.favorite_border),
             tooltip: 'Go to the next page',
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute<void>(
-                builder: (BuildContext context) {
-                  return Favorites();
-                }));
+              Navigator.push(context,
+                  MaterialPageRoute<void>(builder: (BuildContext context) {
+                return Favorites();
+              }));
             },
           ),
         ],
