@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import './book.dart';
+import './book_details.dart';
 
 class BookLib extends StatefulWidget {
   @override
@@ -56,14 +57,15 @@ class BookLibState extends State<BookLib> {
       _error = false;
     });
     var response;
-    try {
-      response = await http.get(
-          Uri.parse('http://localhost:8000/api/books/get?page_num=$_page'));
-    } catch (e) {
-      setState(() {
-        _error = true;
-      });
-    }
+    response = await http
+        .get(Uri.parse('http://127.0.0.1:8000/api/books/get?page_num=$_page'));
+    // try {
+
+    // } catch (e) {
+    //   setState(() {
+    //     _error = true;
+    //   });
+    // }
 
     if (response.statusCode == 200) {
       Iterable i = jsonDecode(response.body);
@@ -111,14 +113,53 @@ class BookLibState extends State<BookLib> {
       padding: const EdgeInsets.all(20),
       crossAxisSpacing: 10,
       mainAxisSpacing: 10,
+      childAspectRatio: 0.7,
       crossAxisCount: 2,
       children: books.map((book) {
-        return Card(
-            child: Column(children: [
-          Image.network("http://localhost:8000/api/books/get_cover/${book.id}"),
-          Text('Tytuł: ' + book.title),
-          Text('Autor: ' + book.author),
-        ]));
+        return InkWell(
+          child: Card(
+            child: Padding(
+              padding: EdgeInsets.all(10),
+              child: new LayoutBuilder(
+                  builder: (BuildContext context, BoxConstraints constraints) {
+                return Column(
+                  children: [
+                    AspectRatio(
+                      aspectRatio:
+                          constraints.maxWidth / (constraints.maxHeight / 1.23),
+                      child: Image.network(
+                        "http://127.0.0.1:8000/api/books/get_cover/${book.id}",
+                        fit: BoxFit.fill,
+                      ),
+                    ),
+                    Text(''),
+                    Flexible(
+                        child: Text(
+                      'Tytuł: ' + book.title,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )),
+                    Flexible(child: Text('Autor: ' + book.author)),
+                  ],
+                );
+              }),
+            ),
+          ),
+          onTap: () {
+            Navigator.push(context,
+                MaterialPageRoute<void>(builder: (BuildContext context) {
+              return BookDetails(
+                title: book.title,
+                author: book.author,
+                coverUrl:
+                    "http://127.0.0.1:8000/api/books/get_cover/${book.id}",
+                // content: null,
+                // comments: null,
+              );
+            }));
+          },
+        );
       }).toList(),
     );
   }
