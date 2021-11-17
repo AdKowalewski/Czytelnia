@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import './comments.dart';
+import './book.dart';
 
 class BookDetails extends StatefulWidget {
+  final int id;
   final String title;
   final String author;
   final String coverUrl;
@@ -17,6 +19,7 @@ class BookDetails extends StatefulWidget {
   //     : super(key: key);
 
   BookDetails({
+    required this.id,
     required this.title,
     required this.author,
     required this.coverUrl,
@@ -36,7 +39,10 @@ class BookDetailsState extends State<BookDetails> {
         body: new LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
           return Column(children: [
-            Card(child: Text('Autor: ' + widget.author)),
+            Text(
+              'Autor: ' + widget.author,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
             Card(
               child: AspectRatio(
                 aspectRatio:
@@ -48,7 +54,9 @@ class BookDetailsState extends State<BookDetails> {
               ),
             ),
             // Card(child: Text(widget.content)),
-            Comments(),
+            Comments(
+              bookId: widget.id,
+            ),
           ]);
         }));
   }

@@ -150,6 +150,7 @@ class BookLibState extends State<BookLib> {
             Navigator.push(context,
                 MaterialPageRoute<void>(builder: (BuildContext context) {
               return BookDetails(
+                id: book.id,
                 title: book.title,
                 author: book.author,
                 coverUrl:
