@@ -1,6 +1,6 @@
 class Comment {
   final int id;
-  final String user;
+  final int user;
   final String text;
   final bool review;
   final DateTime createdAt;

@@ -41,11 +41,12 @@ class MyStatelessWidget extends StatelessWidget {
         actions: <Widget>[
           IconButton(
               icon: const Icon(Icons.login),
+              tooltip: 'Login or register',
               onPressed: () => showDialog<String>(
                   context: context, builder: (BuildContext context) => Auth())),
           IconButton(
             icon: const Icon(Icons.plagiarism),
-            tooltip: 'Show Snackbar',
+            tooltip: 'Go to the library',
             onPressed: () {
               Navigator.push(context,
                   MaterialPageRoute<void>(builder: (BuildContext context) {
@@ -55,7 +56,7 @@ class MyStatelessWidget extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.favorite_border),
-            tooltip: 'Go to the next page',
+            tooltip: 'Go to Your favourite books',
             onPressed: () {
               Navigator.push(context,
                   MaterialPageRoute<void>(builder: (BuildContext context) {

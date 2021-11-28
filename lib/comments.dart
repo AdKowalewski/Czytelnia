@@ -77,19 +77,21 @@ class CommentsState extends State<Comments> {
   }
 
   Widget ErrorBox() {
-    if (_error) {
-      return const Text("Nie udało się wczytać!!!");
-    } else {
-      return Container();
-    }
+    // if (_error) {
+    //   return const Text("Nie udało się wczytać!!!");
+    // } else {
+    //   return Container();
+    // }
+    return const Text("Nie udało się wczytać!!!");
   }
 
   Widget Spinner() {
-    if (_loading) {
-      return const Text("ładuję");
-    } else {
-      return Container();
-    }
+    // if (_loading) {
+    //   return const Text("ładuję");
+    // } else {
+    //   return Container();
+    // }
+    return CircularProgressIndicator();
   }
 
   Widget CommentList() {
@@ -98,7 +100,7 @@ class CommentsState extends State<Comments> {
         return Card(
           child: Column(
             children: [
-              Card(child: Text(comment.user)),
+              Card(child: Text(comment.user.toString())),
               Card(child: Text(comment.text)),
               Row(
                 children: [
@@ -119,11 +121,19 @@ class CommentsState extends State<Comments> {
     );
   }
 
+  Widget getWidget() {
+    if (_error) {
+      return Center(child: ErrorBox());
+    } else if (_loading) {
+      return Center(child: Spinner());
+    } else {
+      return CommentList();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [CommentList(), Spinner(), ErrorBox()],
-    );
+    return getWidget();
   }
 }
 

@@ -13,7 +13,7 @@ class BookLib extends StatefulWidget {
 }
 
 class BookLibState extends State<BookLib> {
-  ScrollController controller = ScrollController();
+  final controller = ScrollController();
   List<Book> books = [
     // Book(id: 1, author: 'sadsad', title: 'harry potter', cover: 'fdfadsffa'),
     // Book(id: 2, author: 'sadsad', title: 'lotr', cover: 'sfdsfdsfd'),
@@ -86,19 +86,21 @@ class BookLibState extends State<BookLib> {
   }
 
   Widget ErrorBox() {
-    if (_error) {
-      return const Text("Nie udało się wczytać!!!");
-    } else {
-      return Container();
-    }
+    // if (_error) {
+    //   return const Text("Nie udało się wczytać!!!");
+    // } else {
+    //   return Container();
+    // }
+    return const Text("Nie udało się wczytać!!!");
   }
 
   Widget Spinner() {
-    if (_loading) {
-      return const Text("ładuję");
-    } else {
-      return Container();
-    }
+    // if (_loading) {
+    //   return const Text("ładuję");
+    // } else {
+    //   return Container();
+    // }
+    return CircularProgressIndicator();
   }
 
   Widget BookGrid() {
@@ -108,7 +110,8 @@ class BookLibState extends State<BookLib> {
     return GridView.count(
       shrinkWrap: true,
       physics: const ScrollPhysics(),
-      //scrollDirection: Axis.vertical,
+      scrollDirection: Axis.vertical,
+      //controller: controller,
       primary: false,
       padding: const EdgeInsets.all(20),
       crossAxisSpacing: 10,
@@ -116,63 +119,74 @@ class BookLibState extends State<BookLib> {
       childAspectRatio: 0.7,
       crossAxisCount: 2,
       children: books.map((book) {
-        return InkWell(
-          child: Card(
-            child: Padding(
-              padding: EdgeInsets.all(10),
-              child: new LayoutBuilder(
-                  builder: (BuildContext context, BoxConstraints constraints) {
-                return Column(
-                  children: [
-                    AspectRatio(
-                      aspectRatio:
-                          constraints.maxWidth / (constraints.maxHeight / 1.23),
-                      child: Image.network(
-                        "http://127.0.0.1:8000/api/books/get_cover/${book.id}",
-                        fit: BoxFit.fill,
+        return Expanded(
+          child: InkWell(
+            child: Card(
+              child: Padding(
+                padding: EdgeInsets.all(10),
+                child: new LayoutBuilder(builder:
+                    (BuildContext context, BoxConstraints constraints) {
+                  return Column(
+                    children: [
+                      AspectRatio(
+                        aspectRatio: constraints.maxWidth /
+                            (constraints.maxHeight / 1.23),
+                        child: Image.network(
+                          "http://127.0.0.1:8000/api/books/get_cover/${book.id}",
+                          fit: BoxFit.fill,
+                        ),
                       ),
-                    ),
-                    Text(''),
-                    Flexible(
-                        child: Text(
-                      'Tytuł: ' + book.title,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )),
-                    Flexible(child: Text('Autor: ' + book.author)),
-                  ],
-                );
-              }),
+                      Text(''),
+                      Flexible(
+                          child: Text(
+                        'Tytuł: ' + book.title,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )),
+                      Flexible(child: Text('Autor: ' + book.author)),
+                    ],
+                  );
+                }),
+              ),
             ),
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute<void>(builder: (BuildContext context) {
+                return BookDetails(
+                  id: book.id,
+                  title: book.title,
+                  author: book.author,
+                  coverUrl:
+                      "http://127.0.0.1:8000/api/books/get_cover/${book.id}",
+                  // content: null,
+                  // comments: null,
+                );
+              }));
+            },
           ),
-          onTap: () {
-            Navigator.push(context,
-                MaterialPageRoute<void>(builder: (BuildContext context) {
-              return BookDetails(
-                id: book.id,
-                title: book.title,
-                author: book.author,
-                coverUrl:
-                    "http://127.0.0.1:8000/api/books/get_cover/${book.id}",
-                // content: null,
-                // comments: null,
-              );
-            }));
-          },
         );
       }).toList(),
     );
   }
 
+  Widget getWidget() {
+    if (_error) {
+      return Center(child: ErrorBox());
+    } else if (_loading) {
+      return Center(child: Spinner());
+    } else {
+      return BookGrid();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Biblioteka książek'),
-        ),
-        body: Column(
-          children: [BookGrid(), Spinner(), ErrorBox()],
-        ));
+      appBar: AppBar(
+        title: const Text('Biblioteka książek'),
+      ),
+      body: getWidget(),
+    );
   }
 }
