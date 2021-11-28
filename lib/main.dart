@@ -1,5 +1,4 @@
 /// Flutter code sample for AppBar
-
 // This sample shows an [AppBar] with two simple actions. The first action
 // opens a [SnackBar], while the second action navigates to a new page.
 
@@ -9,6 +8,7 @@ import './favorites.dart';
 import './book_lib.dart';
 import './auth.dart';
 import './user_state.dart';
+import './pdf_view.dart';
 
 void main() => runApp(
     ChangeNotifierProvider(create: (ctx) => UserState(), child: const MyApp()));
@@ -40,12 +40,23 @@ class MyStatelessWidget extends StatelessWidget {
         title: const Text('Czytelnia'),
         actions: <Widget>[
           IconButton(
-              icon: const Icon(Icons.login),
-              onPressed: () => showDialog<String>(
-                  context: context, builder: (BuildContext context) => Auth())),
+            icon: const Icon(Icons.plagiarism),
+            tooltip: 'Test pdf',
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute<void>(builder: (BuildContext context) {
+                return PDFView();
+              }));
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.login),
+            tooltip: 'Logowanie',
+            onPressed: () => showDialog<String>(
+                context: context, builder: (BuildContext context) => Auth())),
           IconButton(
             icon: const Icon(Icons.plagiarism),
-            tooltip: 'Show Snackbar',
+            tooltip: 'Biblioteka książek',
             onPressed: () {
               Navigator.push(context,
                   MaterialPageRoute<void>(builder: (BuildContext context) {
@@ -55,7 +66,7 @@ class MyStatelessWidget extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.favorite_border),
-            tooltip: 'Go to the next page',
+            tooltip: 'Ulubione',
             onPressed: () {
               Navigator.push(context,
                   MaterialPageRoute<void>(builder: (BuildContext context) {

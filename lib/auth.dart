@@ -127,7 +127,7 @@ class _LoginFormState extends State<LoginForm> {
 
     //Właściwe wczytywanie z serwera
     final response = await http.post(
-        Uri.parse('http://localhost:8000/api/users/login'),
+        Uri.parse('http://10.0.2.2:8000/api/users/login'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

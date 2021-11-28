@@ -58,7 +58,7 @@ class BookLibState extends State<BookLib> {
     var response;
     try {
       response = await http.get(
-          Uri.parse('http://localhost:8000/api/books/get?page_num=$_page'));
+          Uri.parse('http://10.0.2.2:8000/api/books/get?page_num=$_page'));
     } catch (e) {
       setState(() {
         _error = true;
@@ -115,7 +115,7 @@ class BookLibState extends State<BookLib> {
       children: books.map((book) {
         return Card(
             child: Column(children: [
-          Image.network("http://localhost:8000/api/books/get_cover/${book.id}"),
+          Image.network("http://10.0.2.2:8000/api/books/get_cover/${book.id}"),
           Text('Tytuł: ' + book.title),
           Text('Autor: ' + book.author),
         ]));
@@ -127,7 +127,7 @@ class BookLibState extends State<BookLib> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Biblioteka książek'),
+          title: const Text('Biblioteka'),
         ),
         body: Column(
           children: [BookGrid(), Spinner(), ErrorBox()],
