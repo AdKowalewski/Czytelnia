@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert' as JSON;
+import 'dart:convert' as json;
 import 'package:provider/provider.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import './user_state.dart';
 
 class Auth extends StatelessWidget {
@@ -10,29 +9,39 @@ class Auth extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
         title: const Text('Dokonaj autoryzacji'),
-        content: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Consumer<UserState>(builder: (context, state, child) {
-                if (!state.loggedIn) {
-                  return OutlinedButton(
-                    onPressed: () => Navigator.pop(context, 'Cancel'),
-                    child: const Text('Zarejstruj się'),
-                  );
-                } else {
-                  return const SizedBox.shrink();
-                }
-              }),
-              OutlinedButton(
-                onPressed: () {
-                  Navigator.pop(context, 'OK');
-                  showDialog<String>(
-                      context: context,
-                      builder: (BuildContext context) => const LoginForm());
-                },
-                child: const Text('Zaloguj się'),
-              ),
-            ]));
+        content: Consumer<UserState>(builder: (context, state, child) {
+          return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                !state.loggedIn
+                    ? OutlinedButton(
+                        onPressed: () => Navigator.pop(context, 'register'),
+                        child: const Text('Zarejstruj się'),
+                      )
+                    : const SizedBox.shrink(),
+                !state.loggedIn
+                    ? OutlinedButton(
+                        onPressed: () {
+                          Navigator.pop(context, 'login');
+                          showDialog<String>(
+                              context: context,
+                              builder: (BuildContext context) =>
+                                  const LoginForm());
+                        },
+                        child: const Text('Zaloguj się'),
+                      )
+                    : const SizedBox.shrink(),
+                state.loggedIn
+                    ? OutlinedButton(
+                        onPressed: () {
+                          Navigator.pop(context, 'logout');
+                          state.logOut();
+                        },
+                        child: const Text('Wyloguj się'),
+                      )
+                    : const SizedBox.shrink(),
+              ]);
+        }));
   }
 }
 
@@ -48,7 +57,8 @@ class _LoginFormState extends State<LoginForm> {
   String username = "";
   String password = "";
 
-  //Przenieść do gloabalnego stanu aplikacji
+  bool _loading = false;
+  String _error = "";
 
   @override
   Widget build(BuildContext context) {
@@ -84,62 +94,99 @@ class _LoginFormState extends State<LoginForm> {
                 return null;
               },
             ),
-            const SizedBox(height: 100),
+            const SizedBox(height: 50),
             ElevatedButton(
-              onPressed: () async {
-                // Validate returns true if the form is valid, or false otherwise.
-                if (_formKey.currentState!.validate()) {
-                  // If the form is valid, display a snackbar. In the real world,
-                  // you'd often call a server or save the information in a database.
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Przetwarzanie')));
+                onPressed: () async {
+                  // Validate returns true if the form is valid, or false otherwise.
+                  if (_formKey.currentState!.validate()) {
+                    getToken();
+                    // ScaffoldMessenger.of(context).showSnackBar(
+                    //     const SnackBar(content: Text('Przetwarzanie')));
 
-                  bool valid = await getToken();
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                  if (valid) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Zalogowano pomyślnie')),
-                    );
-                    Navigator.pop(context, 'OK');
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Logowanie nieudane')),
-                    );
+                    // ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    // if (valid) {
+                    //   ScaffoldMessenger.of(context).showSnackBar(
+                    //     const SnackBar(content: Text('Zalogowano pomyślnie')),
+                    //   );
+                    //   Navigator.pop(context, 'OK');
+                    // } else {
+                    //   ScaffoldMessenger.of(context).showSnackBar(
+                    //     SnackBar(content: Text(_error)),
+                    //   );
+                    // }
                   }
-                }
-              },
-              child: const Center(child: Text('Wyślij')),
-            ),
+                },
+                child: _loading
+                    ? Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text("Wysyłanie"),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                valueColor:
+                                    AlwaysStoppedAnimation(Colors.white),
+                                backgroundColor: Colors.blue,
+                                strokeWidth: 3,
+                              ),
+                            )
+                          ],
+                        ),
+                      )
+                    : const Text("Wyślij")),
+            //const SizedBox(height: 50),
+            _error.isNotEmpty
+                ? const Divider(color: Colors.grey, thickness: 1.5)
+                : const SizedBox.shrink(),
+            _error.isNotEmpty ? Text(_error) : const SizedBox.shrink()
           ],
         ),
       ),
     );
   }
 
-  Future<bool> getToken() async {
-    // Wczytywanie z pliku
-    // String json = await rootBundle.loadString('token.json');
-    // token = JSON.jsonDecode(json)['token'];
-    // userID = JSON.jsonDecode(json)['id'];
-    // userName = JSON.jsonDecode(json)['username'];
-    // debugPrint(token);
-    // return true;
-
-    //Właściwe wczytywanie z serwera
-    final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/api/users/login'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: JSON.jsonEncode(
-            <String, String>{'username': username, 'password': password}));
-    if (response.statusCode == 200) {
-      String token = JSON.jsonDecode(response.body)['token'];
-      Provider.of<UserState>(context, listen: false).logIn(123, token);
-      debugPrint(token);
-      return true;
-    } else {
-      return false;
+  void getToken() async {
+    setState(() {
+      _loading = true;
+      _error = "";
+    });
+    var response;
+    try {
+      response = await http
+          .post(Uri.parse('http://10.0.2.2:8000/api/users/login'),
+              body: json.jsonEncode(
+                  <String, String>{'username': username, 'password': password}))
+          .timeout(const Duration(seconds: 2));
+    } catch (e) {
+      setState(() {
+        _loading = false;
+        _error = "Nie udało się połączyć z serwerem";
+      });
+      return;
     }
+
+    if (response.statusCode == 200) {
+      String token = json.jsonDecode(response.body)['token'];
+      int id = json.jsonDecode(response.body)['id'];
+      Provider.of<UserState>(context, listen: false).logIn(id, token);
+      debugPrint(token);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Zalogowano pomyślnie')),
+      );
+      Navigator.pop(context, 'OK');
+    } else {
+      setState(() {
+        _error = json.jsonDecode(response.body)['details'];
+      });
+    }
+    setState(() {
+      _loading = false;
+    });
   }
 }

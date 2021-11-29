@@ -58,8 +58,8 @@ class BookLibState extends State<BookLib> {
     });
     var response;
     try {
-      response = await http.get(
-          Uri.parse('http://10.0.2.2:8000/api/books/get?page_num=$_page'));
+      response = await http
+          .get(Uri.parse('http://10.0.2.2:8000/api/books/get?page_num=$_page'));
     } catch (e) {
       setState(() {
         _error = true;
@@ -131,7 +131,7 @@ class BookLibState extends State<BookLib> {
                         aspectRatio: constraints.maxWidth /
                             (constraints.maxHeight / 1.23),
                         child: Image.network(
-                          "http://127.0.0.1:8000/api/books/get_cover/${book.id}",
+                          "http://10.0.2.2:8000/api/books/get_cover/${book.id}",
                           fit: BoxFit.fill,
                         ),
                       ),
@@ -157,7 +157,7 @@ class BookLibState extends State<BookLib> {
                   title: book.title,
                   author: book.author,
                   coverUrl:
-                      "http://127.0.0.1:8000/api/books/get_cover/${book.id}",
+                      "http://10.0.2.2:8000/api/books/get_cover/${book.id}",
                   // content: null,
                   // comments: null,
                 );

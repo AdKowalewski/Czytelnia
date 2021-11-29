@@ -1,19 +1,13 @@
-import 'package:http/http.dart' as http;
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
 import 'package:czytelnia/user_state.dart';
-import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart' as pdf;
-import 'package:pspdfkit_flutter/src/main.dart';
-
 
 class PDFView extends StatefulWidget {
-@override
-_MyAppState createState() => _MyAppState();
+  @override
+  _MyAppState createState() => _MyAppState();
 }
 
 class _MyAppState extends State<PDFView> {
@@ -47,47 +41,51 @@ class _MyAppState extends State<PDFView> {
     var file = await DefaultCacheManager().getSingleFile(
       'http://10.0.2.2:8000/api/books/get_pdf/1',
       headers: <String, String>{
-          'Authorization': 'Bearer $token',
-        },
+        'Authorization': 'Bearer $token',
+      },
     );
     return file.path;
     //await Pspdfkit.present(file.path);
   }
-  Widget PDFRender(){
-    return FutureBuilder(
-        future : getPDF(),
-        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-          return pdf.PDFView(
-            filePath: snapshot.data,
-            enableSwipe: true,
-            swipeHorizontal: true,
-            autoSpacing: false,
-            pageFling: false,
-            onRender: (_pages) {
-              setState(() {
-                isReady = true;
-              });
-            },
-            onError: (error) {
-              print(error.toString());
-            },
-            onPageError: (page, error) {
-              print('$page: ${error.toString()}');
-            },
-          );
-        }
-    );
-  }
 
+  Widget PDFRender() {
+    return FutureBuilder(
+        future: getPDF(),
+        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+          if (snapshot.hasData) {
+            return pdf.PDFView(
+              filePath: snapshot.data,
+              enableSwipe: true,
+              swipeHorizontal: true,
+              autoSpacing: false,
+              pageFling: false,
+              onRender: (_pages) {
+                setState(() {
+                  isReady = true;
+                });
+              },
+              onError: (error) {
+                print(error.toString());
+              },
+              onPageError: (page, error) {
+                print('$page: ${error.toString()}');
+              },
+            );
+          } else {
+            return Column(
+              children: [CircularProgressIndicator()],
+            );
+          }
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Temp Title'),
-      ),
-      body : PDFRender()
-    );
+        appBar: AppBar(
+          title: const Text('Temp Title'),
+        ),
+        body: PDFRender());
   }
 
 //   @override
@@ -105,7 +103,7 @@ class _MyAppState extends State<PDFView> {
 //               ElevatedButton(
 //               child: Text('Tap to Open Document',
 //                 style: themeData.textTheme.headline4?.copyWith(fontSize: 21.0)),
-//                 onPressed: () { 
+//                 onPressed: () {
 //                   if(snap.hasData){
 //                     Pspdfkit.present(snap.data.toString());
 //                   }
