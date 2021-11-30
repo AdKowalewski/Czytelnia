@@ -1,15 +1,17 @@
 class Comment {
   final int id;
-  final int user;
+  final int userId;
+  final String username;
   final String text;
   final bool review;
-  final DateTime createdAt;
+  final String createdAt;
   final bool modified;
-  final DateTime modifiedAt;
+  final String modifiedAt;
 
   Comment(
       {required this.id,
-      required this.user,
+      required this.userId,
+      required this.username,
       required this.text,
       required this.review,
       required this.createdAt,
@@ -19,7 +21,8 @@ class Comment {
   factory Comment.fromJson(Map<String, dynamic> json) {
     return Comment(
       id: json['id'],
-      user: json['user'],
+      userId: json['user']['id'],
+      username: json['user']['username'],
       text: json['text'],
       review: json['review'],
       createdAt: json['created_at'],

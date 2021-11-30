@@ -24,15 +24,19 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
       title: _title,
-      home: MyStatelessWidget(),
+      home: Home(),
     );
   }
 }
 
-/// This is the stateless widget that the main application instantiates.
-class MyStatelessWidget extends StatelessWidget {
-  const MyStatelessWidget({Key? key}) : super(key: key);
+class Home extends StatefulWidget {
+  const Home({Key? key}) : super(key: key);
 
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,10 +54,10 @@ class MyStatelessWidget extends StatelessWidget {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.login),
-            tooltip: 'Logowanie',
-            onPressed: () => showDialog<String>(
-                context: context, builder: (BuildContext context) => Auth())),
+              icon: const Icon(Icons.login),
+              tooltip: 'Logowanie',
+              onPressed: () => showDialog<String>(
+                  context: context, builder: (BuildContext context) => Auth())),
           IconButton(
             icon: const Icon(Icons.plagiarism),
             tooltip: 'Biblioteka książek',

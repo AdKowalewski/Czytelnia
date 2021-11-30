@@ -14,17 +14,10 @@ class BookLib extends StatefulWidget {
 
 class BookLibState extends State<BookLib> {
   final controller = ScrollController();
-  List<Book> books = [
-    // Book(id: 1, author: 'sadsad', title: 'harry potter', cover: 'fdfadsffa'),
-    // Book(id: 2, author: 'sadsad', title: 'lotr', cover: 'sfdsfdsfd'),
-    // Book(id: 3, author: 'sadsad', title: 'diuna', cover: 'sfasdfadsf'),
-    // Book(id: 1, author: 'sadsad', title: 'diuna', cover: 'sfasdfadsf'),
-    // Book(id: 1, author: 'sadsad', title: 'diuna', cover: 'sfasdfadsf'),
-    // Book(id: 1, author: 'sadsad', title: 'diuna', cover: 'sfasdfadsf'),
-  ];
+  List<Book> books = [];
   int _page = 1;
   bool _loading = false;
-  bool _error = false;
+  String _error = "";
 
   @override
   void initState() {
@@ -52,18 +45,18 @@ class BookLibState extends State<BookLib> {
   void fetchBooks() async {
     setState(() {
       _loading = true;
-    });
-    setState(() {
-      _error = false;
+      _error = "";
     });
     var response;
     try {
       response = await http
-          .get(Uri.parse('http://10.0.2.2:8000/api/books/get?page_num=$_page'));
+          .get(Uri.parse('http://10.0.2.2:8000/api/books/get?page_num=$_page'))
+          .timeout(const Duration(seconds: 2));
     } catch (e) {
       setState(() {
-        _error = true;
+        _error = "Nie udało się połączyć z serwerem";
       });
+      return;
     }
 
     if (response.statusCode == 200) {
@@ -76,7 +69,7 @@ class BookLibState extends State<BookLib> {
       _page++;
     } else {
       setState(() {
-        _error = true;
+        _error = jsonDecode(response.body['detail']);
       });
     }
     setState(() {
@@ -85,21 +78,11 @@ class BookLibState extends State<BookLib> {
   }
 
   Widget ErrorBox() {
-    // if (_error) {
-    //   return const Text("Nie udało się wczytać!!!");
-    // } else {
-    //   return Container();
-    // }
-    return const Text("Nie udało się wczytać!!!");
+    return Text(_error);
   }
 
   Widget Spinner() {
-    // if (_loading) {
-    //   return const Text("ładuję");
-    // } else {
-    //   return Container();
-    // }
-    return CircularProgressIndicator();
+    return const CircularProgressIndicator();
   }
 
   Widget BookGrid() {
@@ -123,7 +106,7 @@ class BookLibState extends State<BookLib> {
             child: Card(
               child: Padding(
                 padding: EdgeInsets.all(10),
-                child: new LayoutBuilder(builder:
+                child: LayoutBuilder(builder:
                     (BuildContext context, BoxConstraints constraints) {
                   return Column(
                     children: [
@@ -170,7 +153,7 @@ class BookLibState extends State<BookLib> {
   }
 
   Widget getWidget() {
-    if (_error) {
+    if (_error.isNotEmpty) {
       return Center(child: ErrorBox());
     } else if (_loading) {
       return Center(child: Spinner());

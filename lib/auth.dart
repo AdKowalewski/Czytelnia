@@ -15,7 +15,13 @@ class Auth extends StatelessWidget {
               children: <Widget>[
                 !state.loggedIn
                     ? OutlinedButton(
-                        onPressed: () => Navigator.pop(context, 'register'),
+                        onPressed: () {
+                          Navigator.pop(context, 'register');
+                          showDialog<String>(
+                              context: context,
+                              builder: (BuildContext context) =>
+                                  LoginForm(false));
+                        },
                         child: const Text('Zarejstruj się'),
                       )
                     : const SizedBox.shrink(),
@@ -26,7 +32,7 @@ class Auth extends StatelessWidget {
                           showDialog<String>(
                               context: context,
                               builder: (BuildContext context) =>
-                                  const LoginForm());
+                                  LoginForm(true));
                         },
                         child: const Text('Zaloguj się'),
                       )
@@ -46,7 +52,9 @@ class Auth extends StatelessWidget {
 }
 
 class LoginForm extends StatefulWidget {
-  const LoginForm({Key? key}) : super(key: key);
+  bool isLogin;
+  LoginForm(this.isLogin, {Key? key}) : super(key: key);
+  //LoginForm({Key? key}, this.isLogin) : super(key: key);
 
   @override
   _LoginFormState createState() => _LoginFormState();
@@ -64,7 +72,7 @@ class _LoginFormState extends State<LoginForm> {
   Widget build(BuildContext context) {
     // Build a Form widget using the _formKey created above.
     return AlertDialog(
-      title: const Text('Logowanie'),
+      title: Text(widget.isLogin ? 'Logowanie' : 'Rejestrowanie'),
       content: Form(
         key: _formKey,
         child: Wrap(
@@ -121,8 +129,8 @@ class _LoginFormState extends State<LoginForm> {
                         padding: const EdgeInsets.all(5.0),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Text("Wysyłanie"),
+                          children: const [
+                            Text("Wysyłanie"),
                             SizedBox(
                               width: 5,
                             ),
@@ -157,9 +165,12 @@ class _LoginFormState extends State<LoginForm> {
       _error = "";
     });
     var response;
+    final url = widget.isLogin
+        ? 'http://10.0.2.2:8000/api/users/login'
+        : 'http://10.0.2.2:8000/api/users/register';
     try {
       response = await http
-          .post(Uri.parse('http://10.0.2.2:8000/api/users/login'),
+          .post(Uri.parse(url),
               body: json.jsonEncode(
                   <String, String>{'username': username, 'password': password}))
           .timeout(const Duration(seconds: 2));
@@ -177,12 +188,19 @@ class _LoginFormState extends State<LoginForm> {
       Provider.of<UserState>(context, listen: false).logIn(id, token);
       debugPrint(token);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Zalogowano pomyślnie')),
+        SnackBar(
+            content: Text(widget.isLogin
+                ? 'Zalogowano pomyślnie'
+                : 'Zarejestrowano pomyślnie')),
       );
       Navigator.pop(context, 'OK');
     } else {
       setState(() {
-        _error = json.jsonDecode(response.body)['details'];
+        try {
+          _error = json.jsonDecode(response.body)['detail'];
+        } catch (e) {
+          _error = "Some unknown error occured";
+        }
       });
     }
     setState(() {
