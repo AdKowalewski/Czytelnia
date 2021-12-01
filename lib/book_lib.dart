@@ -50,7 +50,7 @@ class BookLibState extends State<BookLib> {
     var response;
     try {
       response = await http
-          .get(Uri.parse('http://10.0.2.2:8000/api/books/get?page_num=$_page'))
+          .get(Uri.parse('http://10.0.2.2:8000/api/books?page_num=$_page'))
           .timeout(const Duration(seconds: 2));
     } catch (e) {
       setState(() {
@@ -59,7 +59,7 @@ class BookLibState extends State<BookLib> {
       return;
     }
 
-    if (response.statusCode == 200) {
+    if (response.statusCode >= 200 && response.statusCode < 300) {
       Iterable i = jsonDecode(response.body);
       List<Book> newBooks =
           List<Book>.from(i.map((json) => Book.fromJson(json)));
@@ -114,7 +114,7 @@ class BookLibState extends State<BookLib> {
                         aspectRatio: constraints.maxWidth /
                             (constraints.maxHeight / 1.23),
                         child: Image.network(
-                          "http://10.0.2.2:8000/api/books/get_cover/${book.id}",
+                          "http://10.0.2.2:8000/api/books/${book.id}/cover",
                           fit: BoxFit.fill,
                         ),
                       ),
@@ -139,8 +139,7 @@ class BookLibState extends State<BookLib> {
                   id: book.id,
                   title: book.title,
                   author: book.author,
-                  coverUrl:
-                      "http://10.0.2.2:8000/api/books/get_cover/${book.id}",
+                  coverUrl: "http://10.0.2.2:8000/api/books/${book.id}/cover",
                   // content: null,
                   // comments: null,
                 );

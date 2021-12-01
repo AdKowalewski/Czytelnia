@@ -49,7 +49,7 @@ class _HomeState extends State<Home> {
             onPressed: () {
               Navigator.push(context,
                   MaterialPageRoute<void>(builder: (BuildContext context) {
-                return PDFView();
+                return PDFView(1);
               }));
             },
           ),

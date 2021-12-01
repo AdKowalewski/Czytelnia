@@ -52,8 +52,8 @@ class CommentsState extends State<Comments> {
     var response;
     try {
       response = await http
-          .get(Uri.parse('http://10.0.2.2:8000/api/comments/get/' +
-              widget.bookId.toString()))
+          .get(Uri.parse(
+              'http://10.0.2.2:8000/api/comments/' + widget.bookId.toString()))
           .timeout(const Duration(seconds: 2));
     } catch (e) {
       _loading = false;
@@ -146,46 +146,57 @@ class _CommentFormState extends State<CommentForm> {
   String _error = "";
 
   @override
-  Widget build(BuildContext context) {
-    void editComment() async {
-      setState(() {
-        _loading = true;
-        _error = "";
-      });
-      var response;
-      try {
-        final token = Provider.of<UserState>(context, listen: false).token;
-        response = await http.post(
-            Uri.parse(
-                'http://10.0.2.2:8000/api/comments/edit/${widget.bookId}'),
-            body: jsonEncode(<String, String>{
-              'text': reviewText,
-              'review': review.toString()
-            }),
-            headers: <String, String>{
-              'Authorization': 'Bearer $token',
-            }).timeout(const Duration(seconds: 2));
-      } catch (e) {
-        setState(() {
-          _error = "Nie udało się połączyć z serwerem";
-        });
-        return;
-      }
+  void initState() {
+    super.initState();
+    debugPrint("PRZED");
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      fetchComment();
+    });
+    debugPrint("PO");
+    //controller.addListener(_scrollListener);
+  }
 
-      if (response.statusCode == 204) {
-        setState(() {
-          _error = "Przesłano pomyślnie";
-        });
-      } else {
-        setState(() {
-          _error = jsonDecode(response.body['detail']);
-        });
-      }
+  void fetchComment() async {
+    setState(() {
+      _loading = true;
+      _error = "";
+    });
+    var response;
+    try {
+      final token = Provider.of<UserState>(context, listen: false).token;
+      response = await http.post(
+          Uri.parse('http://10.0.2.2:8000/api/comments/${widget.bookId}'),
+          body: jsonEncode(<String, String>{
+            'text': reviewText,
+            'review': review.toString()
+          }),
+          headers: <String, String>{
+            'Authorization': 'Bearer $token',
+          }).timeout(const Duration(seconds: 2));
+    } catch (e) {
       setState(() {
         _loading = false;
+        _error = "Nie udało się połączyć z serwerem";
       });
+      return;
     }
 
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      setState(() {
+        _error = "Przesłano pomyślnie";
+      });
+    } else {
+      setState(() {
+        _error = jsonDecode(response.body['detail']);
+      });
+    }
+    setState(() {
+      _loading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Form(
       key: _formKey,
       child: Wrap(
@@ -205,17 +216,23 @@ class _CommentFormState extends State<CommentForm> {
           ),
           const SizedBox(height: 100),
           const Text("Ocena"),
-          Checkbox(
-              value: null,
-              tristate: true,
-              onChanged: (val) {
-                review = val;
-              }),
+          StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+            return CheckboxListTile(
+                value: review,
+                tristate: true,
+                onChanged: (val) {
+                  setState(() {
+                    print(review);
+                    review = val;
+                  });
+                });
+          }),
           const SizedBox(height: 50),
           ElevatedButton(
               onPressed: () async {
                 if (_formKey.currentState!.validate()) {
-                  editComment();
+                  fetchComment();
                 }
               },
               child: _loading

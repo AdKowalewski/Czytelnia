@@ -60,23 +60,23 @@ class BookDetailsState extends State<BookDetails> {
 
   Widget CommentBar() {
     return Container(
-        color: Colors.blueAccent,
+        //color: Colors.blueAccent,
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-          OutlinedButton(
-              child: const Text('Napisz recenzję'),
-              onPressed: () {
-                setState(() {
-                  _comms = false;
-                });
-              }),
-          OutlinedButton(
-              child: const Text('Czytaj recenzje'),
-              onPressed: () {
-                setState(() {
-                  _comms = true;
-                });
-              }),
-        ]));
+      OutlinedButton(
+          child: const Text('Napisz recenzję'),
+          onPressed: () {
+            setState(() {
+              _comms = false;
+            });
+          }),
+      OutlinedButton(
+          child: const Text('Czytaj recenzje'),
+          onPressed: () {
+            setState(() {
+              _comms = true;
+            });
+          }),
+    ]));
   }
 
   @override

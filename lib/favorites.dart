@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'package:czytelnia/user_state.dart';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import './book.dart';
 import './book_details.dart';
+import './pdf_view.dart';
 
 class Favorites extends StatefulWidget {
   @override
@@ -37,7 +40,13 @@ class FavoritesState extends State<Favorites> {
       _error = false;
     });
     var response;
-    response = await http.get(Uri.parse(''));
+    final token = Provider.of<UserState>(context, listen: false).token;
+    response = await http.get(
+      Uri.parse('http://10.0.2.2:8000/api/users/favorite'),
+      headers: <String, String>{
+        'Authorization': 'Bearer $token',
+      },
+    );
     // try {
 
     // } catch (e) {
@@ -46,7 +55,7 @@ class FavoritesState extends State<Favorites> {
     //   });
     // }
 
-    if (response.statusCode == 200) {
+    if (response.statusCode >= 200 && response.statusCode < 300) {
       Iterable i = jsonDecode(response.body);
       List<Book> newBooks =
           List<Book>.from(i.map((json) => Book.fromJson(json)));
@@ -82,21 +91,10 @@ class FavoritesState extends State<Favorites> {
     return CircularProgressIndicator();
   }
 
-  Widget BookGrid() {
-    //return Scrollbar(
-    //controller: controller,
-    //isAlwaysShown: true,
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const ScrollPhysics(),
+  Widget BookList() {
+    return ListView(
       scrollDirection: Axis.vertical,
-      //controller: controller,
-      primary: false,
-      padding: const EdgeInsets.all(20),
-      crossAxisSpacing: 10,
-      mainAxisSpacing: 10,
-      childAspectRatio: 0.7,
-      crossAxisCount: 2,
+      padding: const EdgeInsets.all(10),
       children: books.map((book) {
         return Expanded(
           child: InkWell(
@@ -105,17 +103,23 @@ class FavoritesState extends State<Favorites> {
                 padding: EdgeInsets.all(10),
                 child: new LayoutBuilder(builder:
                     (BuildContext context, BoxConstraints constraints) {
-                  return Column(
+                  return Row(
                     children: [
-                      AspectRatio(
+                      /*AspectRatio(
                         aspectRatio: constraints.maxWidth /
                             (constraints.maxHeight / 1.23),
                         child: Image.network(
-                          "http://127.0.0.1:8000/api/books/get_cover/${book.id}",
+                          "http://10.0.2.2:8000/api/books/${book.id}/cover",
                           fit: BoxFit.fill,
                         ),
+                      ),*/
+                      Image.network(
+                        "http://10.0.2.2:8000/api/books/${book.id}/cover",
+                        width: 75,
                       ),
-                      Text(''),
+                      SizedBox(
+                        width: 10,
+                      ),
                       Flexible(
                           child: Text(
                         'Tytuł: ' + book.title,
@@ -123,6 +127,9 @@ class FavoritesState extends State<Favorites> {
                           fontWeight: FontWeight.bold,
                         ),
                       )),
+                      SizedBox(
+                        width: 10,
+                      ),
                       Flexible(child: Text('Autor: ' + book.author)),
                     ],
                   );
@@ -132,14 +139,8 @@ class FavoritesState extends State<Favorites> {
             onTap: () {
               Navigator.push(context,
                   MaterialPageRoute<void>(builder: (BuildContext context) {
-                return BookDetails(
-                  id: book.id,
-                  title: book.title,
-                  author: book.author,
-                  coverUrl:
-                      "http://127.0.0.1:8000/api/books/get_cover/${book.id}",
-                  // content: null,
-                  // comments: null,
+                return PDFView(
+                  book.id,
                 );
               }));
             },
@@ -155,7 +156,7 @@ class FavoritesState extends State<Favorites> {
     } else if (_loading) {
       return Center(child: Spinner());
     } else {
-      return BookGrid();
+      return BookList();
     }
   }
 
