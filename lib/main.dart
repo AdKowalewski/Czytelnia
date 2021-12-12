@@ -39,53 +39,55 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Czytelnia'),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.plagiarism),
-            tooltip: 'Test pdf',
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute<void>(builder: (BuildContext context) {
-                return PDFView(1);
-              }));
-            },
-          ),
-          IconButton(
-              icon: const Icon(Icons.login),
-              tooltip: 'Logowanie',
-              onPressed: () => showDialog<String>(
-                  context: context, builder: (BuildContext context) => Auth())),
-          IconButton(
-            icon: const Icon(Icons.plagiarism),
-            tooltip: 'Biblioteka książek',
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute<void>(builder: (BuildContext context) {
-                return BookLib();
-              }));
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.favorite_border),
-            tooltip: 'Ulubione',
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute<void>(builder: (BuildContext context) {
-                return Favorites();
-              }));
-            },
-          ),
-        ],
-      ),
-      body: const Center(
-        child: Text(
-          'Witaj w czytelni',
-          style: TextStyle(fontSize: 24),
+    return Consumer<UserState>(builder: (context, state, child){
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Czytelnia'),
+          actions: <Widget>[
+            // IconButton(
+            //   icon: const Icon(Icons.plagiarism),
+            //   tooltip: 'Test pdf',
+            //   onPressed: () {
+            //     Navigator.push(context,
+            //         MaterialPageRoute<void>(builder: (BuildContext context) {
+            //       return PDFView(1);
+            //     }));
+            //   },
+            // ),
+            IconButton(
+                icon: const Icon(Icons.login),
+                tooltip: 'Logowanie',
+                onPressed: () => showDialog<String>(
+                    context: context, builder: (BuildContext context) => Auth())),
+            IconButton(
+              icon: const Icon(Icons.plagiarism),
+              tooltip: 'Biblioteka książek',
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute<void>(builder: (BuildContext context) {
+                  return BookLib();
+                }));
+              },
+            ),
+            state.loggedIn ? IconButton(
+              icon: const Icon(Icons.favorite_border),
+              tooltip: 'Ulubione',
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute<void>(builder: (BuildContext context) {
+                  return Favorites();
+                }));
+              },
+            ) : const SizedBox.shrink(),
+          ],
         ),
-      ),
-    );
+        body: const Center(
+          child: Text(
+            'Witaj w czytelni',
+            style: TextStyle(fontSize: 24),
+          ),
+        ),
+      );
+    });
   }
 }

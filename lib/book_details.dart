@@ -38,8 +38,8 @@ class BookDetails extends StatefulWidget {
 class BookDetailsState extends State<BookDetails> {
   bool _loadingComments = false;
   String _commentsError = "";
-  bool _comms = false;
-  bool? _isFavorite;
+  bool? _comms = null;
+  bool _isFavorite = false;
 
   @override
   void initState() {
@@ -103,7 +103,7 @@ class BookDetailsState extends State<BookDetails> {
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
       setState(() {
-        _isFavorite = !_isFavorite!;
+        _isFavorite = !_isFavorite;
       });
     } else {
       debugPrint('NIE POSZŁO');
@@ -132,7 +132,7 @@ class BookDetailsState extends State<BookDetails> {
 
   Widget Favorites_star() {
     return IconButton(
-      icon: _isFavorite!
+      icon: _isFavorite
           ? Icon(
               Icons.star,
               color: Colors.yellow,
@@ -148,8 +148,19 @@ class BookDetailsState extends State<BookDetails> {
     );
   }
 
+  
+
   @override
   Widget build(BuildContext context) {
+    Widget commentBlock(){
+      if (_comms == null){
+        return const SizedBox.shrink();
+      }
+      else{
+        return _comms! ? Comments(widget.id) : CommentForm(widget.id);
+      }
+    }
+
     return Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
@@ -160,7 +171,7 @@ class BookDetailsState extends State<BookDetails> {
           children: [
             BookInfo(),
             CommentBar(),
-            _comms ? Comments(widget.id) : CommentForm(widget.id)
+            commentBlock()
           ],
         )));
   }

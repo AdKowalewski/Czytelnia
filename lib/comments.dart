@@ -19,7 +19,7 @@ class CommentsState extends State<Comments> {
   ScrollController controller = ScrollController();
   List<Comment> comments = [];
   bool _loading = false;
-  String _error = "";
+  //String _error = "";
 
   @override
   void initState() {
@@ -32,22 +32,16 @@ class CommentsState extends State<Comments> {
     //controller.addListener(_scrollListener);
   }
 
-  @override
-  void dispose() {
-    controller.removeListener(_scrollListener);
-    super.dispose();
-  }
-
-  void _scrollListener() {
-    if (controller.position.extentAfter < 500) {
-      fetchComments();
-    }
+  void showError(message){
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(message),
+      ));
   }
 
   void fetchComments() async {
     setState(() {
       _loading = true;
-      _error = "";
     });
     var response;
     try {
@@ -56,8 +50,11 @@ class CommentsState extends State<Comments> {
               'http://10.0.2.2:8000/api/comments/' + widget.bookId.toString()))
           .timeout(const Duration(seconds: 2));
     } catch (e) {
-      _loading = false;
-      _error = "Nie udało się połączyć z serwerem";
+      setState(() {
+        _loading = false;
+      });
+      showError("Nie udało się połączyć z serwerem");
+      return;
     }
 
     if (response.statusCode == 200) {
@@ -68,17 +65,11 @@ class CommentsState extends State<Comments> {
         comments = comments + newComments;
       });
     } else {
-      setState(() {
-        _error = jsonDecode(response.body)['detail'];
-      });
+      showError(jsonDecode(response.body)['detail']);
     }
     setState(() {
       _loading = false;
     });
-  }
-
-  Widget ErrorBox() {
-    return Text(_error);
   }
 
   Widget Spinner() {
@@ -113,9 +104,7 @@ class CommentsState extends State<Comments> {
   }
 
   Widget getWidget() {
-    if (_error.isNotEmpty) {
-      return Center(child: ErrorBox());
-    } else if (_loading) {
+    if (_loading) {
       return Center(child: Spinner());
     } else {
       return CommentList();
@@ -139,36 +128,43 @@ class CommentForm extends StatefulWidget {
 
 class _CommentFormState extends State<CommentForm> {
   final _formKey = GlobalKey<FormState>();
-  String reviewText = "";
-  bool? review;
+  String _reviewText = "";
+  bool? _review;
 
   bool _loading = false;
-  String _error = "";
+  //String _error = "";
 
   @override
   void initState() {
-    super.initState();
     debugPrint("PRZED");
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      fetchComment();
+      getUserComment();
     });
+    super.initState();
+    
     debugPrint("PO");
     //controller.addListener(_scrollListener);
   }
 
-  void fetchComment() async {
+  void showError(message){
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(message),
+      ));
+  }
+
+  void postComment() async {
     setState(() {
       _loading = true;
-      _error = "";
     });
     var response;
     try {
       final token = Provider.of<UserState>(context, listen: false).token;
-      response = await http.post(
+      response = await http.put(
           Uri.parse('http://10.0.2.2:8000/api/comments/${widget.bookId}'),
           body: jsonEncode(<String, String>{
-            'text': reviewText,
-            'review': review.toString()
+            'text': _reviewText,
+            'review': _review.toString()
           }),
           headers: <String, String>{
             'Authorization': 'Bearer $token',
@@ -176,36 +172,68 @@ class _CommentFormState extends State<CommentForm> {
     } catch (e) {
       setState(() {
         _loading = false;
-        _error = "Nie udało się połączyć z serwerem";
       });
+      showError("Nie udało się połączyć z serwerem");
       return;
     }
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      setState(() {
-        _error = "Przesłano pomyślnie";
-      });
+      showError("Wysłano pomyślnie");
     } else {
-      setState(() {
-        _error = jsonDecode(response.body['detail']);
-      });
+      showError(jsonDecode(response.body['detail']));
     }
     setState(() {
       _loading = false;
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
+  void getUserComment() async {
+    setState(() {
+      _loading = true;
+    });
+    var response;
+    try {
+      final token = Provider.of<UserState>(context, listen: false).token;
+      response = await http.get(
+          Uri.parse('http://10.0.2.2:8000/api/comments/${widget.bookId}/user'),
+          headers: <String, String>{
+            'Authorization': 'Bearer $token',
+          }).timeout(const Duration(seconds: 2));
+    } catch (e) {
+      setState(() {
+        _loading = false;
+      });
+      showError("Nie udało się połączyć z serwerem!");
+      return;
+    }
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      final comm = Comment.fromJson(jsonDecode(response.body));
+      debugPrint(comm.text);
+      setState(() {
+        _reviewText = comm.text;
+        _review = comm.review;
+      });
+    }
+    else{
+      showError(jsonDecode(response.body['detail']));
+    }
+    setState(() {
+      _loading = false;
+    });
+  }
+
+  Widget getForm(){
     return Form(
       key: _formKey,
       child: Wrap(
         children: <Widget>[
           const Text("Treść recenzji"),
           TextFormField(
+            initialValue: _reviewText,
             maxLines: 10,
             onChanged: (text) {
-              reviewText = text;
+              _reviewText = text;
             },
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -219,12 +247,12 @@ class _CommentFormState extends State<CommentForm> {
           StatefulBuilder(
               builder: (BuildContext context, StateSetter setState) {
             return CheckboxListTile(
-                value: review,
+                value: _review,
                 tristate: true,
                 onChanged: (val) {
                   setState(() {
-                    print(review);
-                    review = val;
+                    print(_review);
+                    _review = val;
                   });
                 });
           }),
@@ -232,40 +260,22 @@ class _CommentFormState extends State<CommentForm> {
           ElevatedButton(
               onPressed: () async {
                 if (_formKey.currentState!.validate()) {
-                  fetchComment();
+                  postComment();
                 }
               },
-              child: _loading
-                  ? Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          Text("Wysyłanie"),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation(Colors.white),
-                              backgroundColor: Colors.blue,
-                              strokeWidth: 3,
-                            ),
-                          )
-                        ],
-                      ),
-                    )
-                  : const Text("Wyślij")),
-          //const SizedBox(height: 50),
-          _error.isNotEmpty
-              ? const Divider(color: Colors.grey, thickness: 1.5)
-              : const SizedBox.shrink(),
-          _error.isNotEmpty ? Text(_error) : const SizedBox.shrink()
+              child: const Text("Wyślij")),
         ],
       ),
     );
   }
-//id, user, text, review, cre-at, modifeied, mod-at
+
+  @override
+  Widget build(BuildContext context) {
+    if(_loading){
+      return const CircularProgressIndicator();
+    }
+    else{
+      return getForm();
+    }
+  }
 }
