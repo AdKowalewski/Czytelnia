@@ -32,11 +32,10 @@ class CommentsState extends State<Comments> {
     //controller.addListener(_scrollListener);
   }
 
-  void showError(message){
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(message),
-      ));
+  void showError(message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
   }
 
   void fetchComments() async {
@@ -82,7 +81,11 @@ class CommentsState extends State<Comments> {
         return Card(
           child: Column(
             children: [
-              Card(child: Text(comment.username)),
+              Card(
+                  child: Text(
+                comment.username,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              )),
               Card(child: Text(comment.text)),
               Row(
                 children: [
@@ -129,7 +132,8 @@ class CommentForm extends StatefulWidget {
 class _CommentFormState extends State<CommentForm> {
   final _formKey = GlobalKey<FormState>();
   String _reviewText = "";
-  bool? _review;
+  bool _review = true;
+  bool? _doesReviewExist;
 
   bool _loading = false;
   //String _error = "";
@@ -141,16 +145,15 @@ class _CommentFormState extends State<CommentForm> {
       getUserComment();
     });
     super.initState();
-    
+
     debugPrint("PO");
     //controller.addListener(_scrollListener);
   }
 
-  void showError(message){
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(message),
-      ));
+  void showError(message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
   }
 
   void postComment() async {
@@ -179,8 +182,14 @@ class _CommentFormState extends State<CommentForm> {
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
       showError("Wysłano pomyślnie");
+      setState(() {
+        _doesReviewExist = true;
+      });
     } else {
       showError(jsonDecode(response.body['detail']));
+      setState(() {
+        _doesReviewExist = false;
+      });
     }
     setState(() {
       _loading = false;
@@ -208,14 +217,26 @@ class _CommentFormState extends State<CommentForm> {
     }
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      final comm = Comment.fromJson(jsonDecode(response.body));
-      debugPrint(comm.text);
-      setState(() {
-        _reviewText = comm.text;
-        _review = comm.review;
-      });
-    }
-    else{
+      if (response.statusCode == 204) {
+        debugPrint('204');
+        setState(() {
+          _reviewText = "";
+          _review = true;
+          _loading = false;
+          _doesReviewExist = false;
+        });
+      } else {
+        final comm = Comment.fromJson(jsonDecode(response.body));
+        debugPrint(comm.text);
+        debugPrint('not 204');
+        setState(() {
+          _reviewText = comm.text;
+          _review = comm.review;
+          _loading = false;
+          _doesReviewExist = true;
+        });
+      }
+    } else {
       showError(jsonDecode(response.body['detail']));
     }
     setState(() {
@@ -223,7 +244,61 @@ class _CommentFormState extends State<CommentForm> {
     });
   }
 
-  Widget getForm(){
+  void deleteComment() async {
+    setState(() {
+      _loading = true;
+    });
+    var response;
+    try {
+      final token = Provider.of<UserState>(context, listen: false).token;
+      response = await http.delete(
+          Uri.parse('http://10.0.2.2:8000/api/comments/${widget.bookId}'),
+          headers: <String, String>{
+            'Authorization': 'Bearer $token',
+          }).timeout(const Duration(seconds: 2));
+    } catch (e) {
+      setState(() {
+        _loading = false;
+      });
+      showError("Nie udało się połączyć z serwerem");
+      return;
+    }
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      showError("Usunięto pomyślnie");
+      setState(() {
+        _reviewText = "";
+        _review = true;
+        _loading = false;
+        _doesReviewExist = false;
+      });
+    } else {
+      showError(jsonDecode(response.body['detail']));
+    }
+    setState(() {
+      _loading = false;
+    });
+  }
+
+  Widget RedDeleteButton() {
+    if (_doesReviewExist!) {
+      return Container(
+        margin: const EdgeInsets.only(left: 10.0),
+        child: ElevatedButton(
+            style: ElevatedButton.styleFrom(primary: Colors.red),
+            onPressed: () async {
+              if (_formKey.currentState!.validate()) {
+                deleteComment();
+              }
+            },
+            child: const Text("Usuń")),
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  Widget getForm() {
     return Form(
       key: _formKey,
       child: Wrap(
@@ -248,22 +323,29 @@ class _CommentFormState extends State<CommentForm> {
               builder: (BuildContext context, StateSetter setState) {
             return CheckboxListTile(
                 value: _review,
-                tristate: true,
                 onChanged: (val) {
                   setState(() {
                     print(_review);
-                    _review = val;
+                    _review = val!;
                   });
                 });
           }),
           const SizedBox(height: 50),
-          ElevatedButton(
-              onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  postComment();
-                }
-              },
-              child: const Text("Wyślij")),
+          Row(
+            children: [
+              Container(
+                margin: const EdgeInsets.only(left: 10.0),
+                child: ElevatedButton(
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        postComment();
+                      }
+                    },
+                    child: const Text("Wyślij")),
+              ),
+              RedDeleteButton(),
+            ],
+          ),
         ],
       ),
     );
@@ -271,10 +353,9 @@ class _CommentFormState extends State<CommentForm> {
 
   @override
   Widget build(BuildContext context) {
-    if(_loading){
+    if (_loading) {
       return const CircularProgressIndicator();
-    }
-    else{
+    } else {
       return getForm();
     }
   }
