@@ -86,36 +86,39 @@ class CommentsState extends State<Comments> {
               child: Column(
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          comment.username,
-                          textAlign : TextAlign.left,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            comment.username,
+                            textAlign: TextAlign.left,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 15),
+                          ),
                         ),
-                      ),
-                      comment.review ? 
-                        const Icon(Icons.thumb_up_outlined, color : Colors.green) : 
-                        const Icon(Icons.thumb_down_outlined, color : Colors.red),
-                      Column(
-                        children: [
-                          Text("Stworzony : ${comment.createdAt.toString()}"),
-                          comment.modified ? 
-                            Text("Modyfikowany : ${comment.modifiedAt.toString()}"):
-                            const SizedBox.shrink(),
-                        ],
-                      )
-                    ]
-                  ),
+                        comment.review
+                            ? const Icon(Icons.thumb_up_outlined,
+                                color: Colors.green)
+                            : const Icon(Icons.thumb_down_outlined,
+                                color: Colors.red),
+                        Column(
+                          children: [
+                            Text("Utworzono : ${comment.createdAt.toString()}"),
+                            comment.modified
+                                ? Text(
+                                    "Zmodyfikowano : ${comment.modifiedAt.toString()}")
+                                : const SizedBox.shrink(),
+                          ],
+                        )
+                      ]),
                   const Divider(thickness: 1, color: Colors.grey),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
                       comment.text,
                       style: const TextStyle(fontSize: 18),
-                      ),
+                    ),
                   ),
                 ],
               ),
@@ -318,6 +321,14 @@ class _CommentFormState extends State<CommentForm> {
     }
   }
 
+  Widget textOnBlueButton() {
+    if (_doesReviewExist) {
+      return const Text('Edytuj');
+    } else {
+      return const Text('Wyślij');
+    }
+  }
+
   Widget getForm() {
     return Container(
       padding: EdgeInsets.all(10),
@@ -327,13 +338,13 @@ class _CommentFormState extends State<CommentForm> {
           children: <Widget>[
             TextFormField(
               decoration: const InputDecoration(
-                  labelText: "Treść recenzji",
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(),
-                  ),
-                  //fillColor: Colors.green
+                labelText: "Treść recenzji",
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.zero,
+                  borderSide: BorderSide(),
+                ),
+                //fillColor: Colors.green
               ),
               initialValue: _reviewText,
               maxLines: 5,
@@ -350,16 +361,15 @@ class _CommentFormState extends State<CommentForm> {
             const SizedBox(height: 100),
             //const Text("Ocena"),
             CheckboxListTile(
-              title : const Text("Ocena"),
-              value: _review,
-              controlAffinity: ListTileControlAffinity.leading,
-              onChanged: (val) {
-                setState(() {
-                  print(_review);
-                  _review = val!;
-                });
-              }
-            ),
+                title: const Text("Ocena"),
+                value: _review,
+                controlAffinity: ListTileControlAffinity.leading,
+                onChanged: (val) {
+                  setState(() {
+                    print(_review);
+                    _review = val!;
+                  });
+                }),
             // Checkbox(
             //   checkColor: Colors.white,
             //   value: _review,
@@ -380,7 +390,7 @@ class _CommentFormState extends State<CommentForm> {
                           postComment();
                         }
                       },
-                      child: const Text("Wyślij")),
+                      child: textOnBlueButton()),
                 ),
                 RedDeleteButton(),
               ],
