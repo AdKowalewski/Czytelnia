@@ -101,51 +101,45 @@ class BookLibState extends State<BookLib> {
       childAspectRatio: 0.7,
       crossAxisCount: 2,
       children: books.map((book) {
-        return Expanded(
-          child: InkWell(
-            child: Card(
-              child: Padding(
-                padding: EdgeInsets.all(10),
-                child: LayoutBuilder(builder:
-                    (BuildContext context, BoxConstraints constraints) {
-                  return Column(
-                    children: [
-                      AspectRatio(
-                        aspectRatio: constraints.maxWidth /
-                            (constraints.maxHeight / 1.23),
-                        child: Image.network(
-                          "http://10.0.2.2:8000/api/books/${book.id}/cover",
-                          fit: BoxFit.fill,
-                        ),
+        return InkWell(
+          child: Card(
+            child: Padding(
+              padding: EdgeInsets.all(10),
+              child: LayoutBuilder(builder:
+                  (BuildContext context, BoxConstraints constraints) {
+                return Column(
+                  children: [
+                    AspectRatio(
+                      aspectRatio: constraints.maxWidth /
+                          (constraints.maxHeight / 1.23),
+                      child: Image.network(
+                        "http://10.0.2.2:8000/api/books/${book.id}/cover",
+                        fit: BoxFit.fill,
                       ),
-                      Text(''),
-                      Flexible(
-                          child: Text(
-                        'Tytuł: ' + book.title,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      )),
-                      Flexible(child: Text('Autor: ' + book.author)),
-                    ],
-                  );
-                }),
-              ),
-            ),
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute<void>(builder: (BuildContext context) {
-                return BookDetails(
-                  id: book.id,
-                  title: book.title,
-                  author: book.author,
-                  coverUrl: "http://10.0.2.2:8000/api/books/${book.id}/cover",
-                  // content: null,
-                  // comments: null,
+                    ),
+                    Divider(thickness: 1, color:Colors.grey),
+                    Flexible(
+                        child: Text(book.title, style: TextStyle(fontWeight: FontWeight.bold))
+                    ),
+                    //Flexible(child: Text('Autor: ' + book.author)),
+                  ],
                 );
-              }));
-            },
+              }),
+            ),
           ),
+          onTap: () {
+            Navigator.push(context,
+                MaterialPageRoute<void>(builder: (BuildContext context) {
+              return BookDetails(
+                id: book.id,
+                title: book.title,
+                author: book.author,
+                coverUrl: "http://10.0.2.2:8000/api/books/${book.id}/cover",
+                // content: null,
+                // comments: null,
+              );
+            }));
+          },
         );
       }).toList(),
     );

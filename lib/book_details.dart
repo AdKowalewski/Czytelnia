@@ -50,44 +50,119 @@ class BookDetailsState extends State<BookDetails> {
   }
 
   Widget BookInfo() {
-    return Column(children: [
-      Text(
-        'Autor: ' + widget.author,
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-      ),
-      Card(
-        child: AspectRatio(
-          aspectRatio: 1 / 1.5,
-          //aspectRatio: constraints.maxWidth / (constraints.maxHeight / 1.23),
-          child: Image.network(
-            widget.coverUrl,
-            fit: BoxFit.fill,
-          ),
+    return DecoratedBox(
+      position : DecorationPosition.background,
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFFFF),
+        border: Border.all(
+          color: Colors.grey,
+          style: BorderStyle.solid,
+          width: 1.0,
         ),
+        borderRadius: BorderRadius.zero,
+        shape: BoxShape.rectangle,
       ),
-      // Card(child: Text(widget.content)),
-    ]);
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          return Column(
+            mainAxisAlignment : MainAxisAlignment.spaceAround,
+            children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: Image.network(
+                  widget.coverUrl,
+                  width: constraints.maxWidth/2.5,
+                ),
+              ),
+              //const VerticalDivider(color: Colors.grey, thickness: 5),
+              Column(children: [
+                Text(
+                  widget.title,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+                Text(
+                  widget.author,
+                  style: TextStyle(fontSize: 20),
+                ),
+              ])
+            ]),
+            const Divider(color: Colors.grey, thickness: 1),
+            Text(
+              "Tymczasowy opis książki",
+              style: TextStyle(fontSize: 15),
+            ),
+            //const Divider(color: Colors.grey, thickness: 1.5)
+          ]);
+        })
+      ),
+    );
+
+  }
+
+  Widget commentBlock(){
+      if (_comms == null){
+        return const SizedBox.shrink();
+      }
+      else{
+        return _comms! ? Comments(widget.id) : CommentForm(widget.id);
+      }
   }
 
   Widget CommentBar() {
+
     return Container(
-        //color: Colors.blueAccent,
-        child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-      OutlinedButton(
-          child: const Text('Napisz recenzję'),
-          onPressed: () {
-            setState(() {
-              _comms = false;
-            });
-          }),
-      OutlinedButton(
-          child: const Text('Czytaj recenzje'),
-          onPressed: () {
-            setState(() {
-              _comms = true;
-            });
-          }),
-    ]));
+      padding: EdgeInsets.all(10),
+      child: DecoratedBox(
+          position : DecorationPosition.background,
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFFFFF),
+            border: Border.all(
+              color: Colors.grey,
+              style: BorderStyle.solid,
+              width: 1.0,
+            ),
+            borderRadius: BorderRadius.zero,
+            shape: BoxShape.rectangle,
+          ),
+          child: Column(
+            children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center, 
+                children: [
+                Expanded(
+                  child: OutlinedButton(
+                    child: const Text('Napisz recenzję'),
+                    onPressed: () {
+                      setState(() {
+                        _comms = false;
+                      });
+                    }
+                  ),
+                ),
+                Expanded(
+                  child: OutlinedButton(
+                    child: const Text('Czytaj recenzje'),
+                    onPressed: () {
+                      setState(() {
+                        _comms = true;
+                      });
+                    }
+                  ),
+                ),
+              ]),
+            ),
+            commentBlock()
+          ]
+          )
+      ),
+    );
   }
 
   void toggleFavorite() async {
@@ -152,14 +227,6 @@ class BookDetailsState extends State<BookDetails> {
 
   @override
   Widget build(BuildContext context) {
-    Widget commentBlock(){
-      if (_comms == null){
-        return const SizedBox.shrink();
-      }
-      else{
-        return _comms! ? Comments(widget.id) : CommentForm(widget.id);
-      }
-    }
 
     return Scaffold(
         appBar: AppBar(
@@ -171,7 +238,6 @@ class BookDetailsState extends State<BookDetails> {
           children: [
             BookInfo(),
             CommentBar(),
-            commentBlock()
           ],
         )));
   }

@@ -76,33 +76,53 @@ class CommentsState extends State<Comments> {
   }
 
   Widget CommentList() {
-    return Column(
-      children: comments.map((comment) {
-        return Card(
-          child: Column(
-            children: [
-              Card(
-                  child: Text(
-                comment.username,
-                style: TextStyle(fontWeight: FontWeight.bold),
-              )),
-              Card(child: Text(comment.text)),
-              Row(
+    return Container(
+      padding: const EdgeInsets.all(5),
+      child: Column(
+        children: comments.map((comment) {
+          return Card(
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              child: Column(
                 children: [
-                  Card(
-                    child: Text(comment.review.toString()),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          comment.username,
+                          textAlign : TextAlign.left,
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                        ),
+                      ),
+                      comment.review ? 
+                        const Icon(Icons.thumb_up_outlined, color : Colors.green) : 
+                        const Icon(Icons.thumb_down_outlined, color : Colors.red),
+                      Column(
+                        children: [
+                          Text("Stworzony : ${comment.createdAt.toString()}"),
+                          comment.modified ? 
+                            Text("Modyfikowany : ${comment.modifiedAt.toString()}"):
+                            const SizedBox.shrink(),
+                        ],
+                      )
+                    ]
                   ),
-                  Card(
-                    child: Text(comment.modified
-                        ? comment.modifiedAt.toString()
-                        : comment.createdAt.toString()),
+                  const Divider(thickness: 1, color: Colors.grey),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      comment.text,
+                      style: const TextStyle(fontSize: 18),
+                      ),
                   ),
                 ],
-              )
-            ],
-          ),
-        );
-      }).toList(),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -133,7 +153,7 @@ class _CommentFormState extends State<CommentForm> {
   final _formKey = GlobalKey<FormState>();
   String _reviewText = "";
   bool _review = true;
-  bool? _doesReviewExist;
+  bool _doesReviewExist = false;
 
   bool _loading = false;
   //String _error = "";
@@ -281,7 +301,7 @@ class _CommentFormState extends State<CommentForm> {
   }
 
   Widget RedDeleteButton() {
-    if (_doesReviewExist!) {
+    if (_doesReviewExist) {
       return Container(
         margin: const EdgeInsets.only(left: 10.0),
         child: ElevatedButton(
@@ -299,54 +319,74 @@ class _CommentFormState extends State<CommentForm> {
   }
 
   Widget getForm() {
-    return Form(
-      key: _formKey,
-      child: Wrap(
-        children: <Widget>[
-          const Text("Treść recenzji"),
-          TextFormField(
-            initialValue: _reviewText,
-            maxLines: 10,
-            onChanged: (text) {
-              _reviewText = text;
-            },
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Recenzja nie może być pusta';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 100),
-          const Text("Ocena"),
-          StatefulBuilder(
-              builder: (BuildContext context, StateSetter setState) {
-            return CheckboxListTile(
-                value: _review,
-                onChanged: (val) {
-                  setState(() {
-                    print(_review);
-                    _review = val!;
-                  });
-                });
-          }),
-          const SizedBox(height: 50),
-          Row(
-            children: [
-              Container(
-                margin: const EdgeInsets.only(left: 10.0),
-                child: ElevatedButton(
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        postComment();
-                      }
-                    },
-                    child: const Text("Wyślij")),
+    return Container(
+      padding: EdgeInsets.all(10),
+      child: Form(
+        key: _formKey,
+        child: Wrap(
+          children: <Widget>[
+            TextFormField(
+              decoration: const InputDecoration(
+                  labelText: "Treść recenzji",
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.zero,
+                    borderSide: BorderSide(),
+                  ),
+                  //fillColor: Colors.green
               ),
-              RedDeleteButton(),
-            ],
-          ),
-        ],
+              initialValue: _reviewText,
+              maxLines: 5,
+              onChanged: (text) {
+                _reviewText = text;
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Recenzja nie może być pusta';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 100),
+            //const Text("Ocena"),
+            CheckboxListTile(
+              title : const Text("Ocena"),
+              value: _review,
+              controlAffinity: ListTileControlAffinity.leading,
+              onChanged: (val) {
+                setState(() {
+                  print(_review);
+                  _review = val!;
+                });
+              }
+            ),
+            // Checkbox(
+            //   checkColor: Colors.white,
+            //   value: _review,
+            //   onChanged: (bool? value) {
+            //     setState(() {
+            //       _review = value!;
+            //     });
+            //   },
+            // ),
+            const SizedBox(height: 50),
+            Row(
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(left: 10.0),
+                  child: ElevatedButton(
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          postComment();
+                        }
+                      },
+                      child: const Text("Wyślij")),
+                ),
+                RedDeleteButton(),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -96,55 +96,53 @@ class FavoritesState extends State<Favorites> {
       scrollDirection: Axis.vertical,
       padding: const EdgeInsets.all(10),
       children: books.map((book) {
-        return Expanded(
-          child: InkWell(
-            child: Card(
-              child: Padding(
-                padding: EdgeInsets.all(10),
-                child: new LayoutBuilder(builder:
-                    (BuildContext context, BoxConstraints constraints) {
-                  return Row(
-                    children: [
-                      /*AspectRatio(
-                        aspectRatio: constraints.maxWidth /
-                            (constraints.maxHeight / 1.23),
-                        child: Image.network(
-                          "http://10.0.2.2:8000/api/books/${book.id}/cover",
-                          fit: BoxFit.fill,
-                        ),
-                      ),*/
-                      Image.network(
+        return InkWell(
+          child: Card(
+            child: Padding(
+              padding: EdgeInsets.all(10),
+              child: new LayoutBuilder(builder:
+                  (BuildContext context, BoxConstraints constraints) {
+                return Row(
+                  children: [
+                    /*AspectRatio(
+                      aspectRatio: constraints.maxWidth /
+                          (constraints.maxHeight / 1.23),
+                      child: Image.network(
                         "http://10.0.2.2:8000/api/books/${book.id}/cover",
-                        width: 75,
+                        fit: BoxFit.fill,
                       ),
-                      SizedBox(
-                        width: 10,
+                    ),*/
+                    Image.network(
+                      "http://10.0.2.2:8000/api/books/${book.id}/cover",
+                      width: 75,
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Flexible(
+                        child: Text(
+                      'Tytuł: ' + book.title,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
                       ),
-                      Flexible(
-                          child: Text(
-                        'Tytuł: ' + book.title,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      )),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Flexible(child: Text('Autor: ' + book.author)),
-                    ],
-                  );
-                }),
-              ),
-            ),
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute<void>(builder: (BuildContext context) {
-                return PDFView(
-                  book.id,
+                    )),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Flexible(child: Text('Autor: ' + book.author)),
+                  ],
                 );
-              }));
-            },
+              }),
+            ),
           ),
+          onTap: () {
+            Navigator.push(context,
+                MaterialPageRoute<void>(builder: (BuildContext context) {
+              return PDFView(
+                book.id,
+              );
+            }));
+          },
         );
       }).toList(),
     );
