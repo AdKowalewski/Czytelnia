@@ -17,9 +17,8 @@ class Favorites extends StatefulWidget {
 
 class FavoritesState extends State<Favorites> {
   List<Book> books = [];
-  int _page = 1;
   bool _loading = false;
-  bool _error = false;
+  //bool _error = false;
 
   @override
   void initState() {
@@ -32,28 +31,28 @@ class FavoritesState extends State<Favorites> {
     //controller.addListener(_scrollListener);
   }
 
+  void showError(message, {dur = 2000}) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(message), duration: Duration(milliseconds: dur)));
+  }
+
   void fetchBooks() async {
     setState(() {
       _loading = true;
     });
-    setState(() {
-      _error = false;
-    });
     var response;
     final token = Provider.of<UserState>(context, listen: false).token;
-    response = await http.get(
-      Uri.parse('http://10.0.2.2:8000/api/users/favorite'),
-      headers: <String, String>{
-        'Authorization': 'Bearer $token',
-      },
-    );
-    // try {
-
-    // } catch (e) {
-    //   setState(() {
-    //     _error = true;
-    //   });
-    // }
+    try {
+      response = await http.get(
+        Uri.parse('http://10.0.2.2:8000/api/users/favorite'),
+        headers: <String, String>{
+          'Authorization': 'Bearer $token',
+        },
+      );
+    } catch (e) {
+      showError("Nie udało się połączyć z serwerem");
+      return;
+    }
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
       Iterable i = jsonDecode(response.body);
@@ -62,33 +61,12 @@ class FavoritesState extends State<Favorites> {
       setState(() {
         books = books + newBooks;
       });
-      _page++;
     } else {
-      setState(() {
-        _error = true;
-      });
+      showError(jsonDecode(response.body)['detail'].toString());
     }
     setState(() {
       _loading = false;
     });
-  }
-
-  Widget ErrorBox() {
-    // if (_error) {
-    //   return const Text("Nie udało się wczytać!!!");
-    // } else {
-    //   return Container();
-    // }
-    return const Text("Nie udało się wczytać!!!");
-  }
-
-  Widget Spinner() {
-    // if (_loading) {
-    //   return const Text("ładuję");
-    // } else {
-    //   return Container();
-    // }
-    return CircularProgressIndicator();
   }
 
   Widget BookList() {
@@ -99,38 +77,45 @@ class FavoritesState extends State<Favorites> {
         return InkWell(
           child: Card(
             child: Padding(
-              padding: EdgeInsets.all(10),
-              child: new LayoutBuilder(builder:
-                  (BuildContext context, BoxConstraints constraints) {
-                return Row(
-                  children: [
-                    /*AspectRatio(
-                      aspectRatio: constraints.maxWidth /
-                          (constraints.maxHeight / 1.23),
-                      child: Image.network(
-                        "http://10.0.2.2:8000/api/books/${book.id}/cover",
-                        fit: BoxFit.fill,
+              padding: const EdgeInsets.all(10),
+              child: LayoutBuilder(
+                  builder: (BuildContext context, BoxConstraints constraints) {
+                return IntrinsicHeight(
+                  child: Row(
+                    children: [
+                      Image.network(
+                        "http://10.0.2.2:8000/api/books/cover/${book.id}",
+                        width: constraints.maxWidth / 4,
                       ),
-                    ),*/
-                    Image.network(
-                      "http://10.0.2.2:8000/api/books/${book.id}/cover",
-                      width: 75,
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Flexible(
-                        child: Text(
-                      'Tytuł: ' + book.title,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Flexible(child: Text('Autor: ' + book.author)),
-                  ],
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 35),
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    book.title,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
+                                  ),
+                                ),
+                                const Divider(thickness: 1, color: Colors.grey),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    book.author,
+                                    style: const TextStyle(fontSize: 20),
+                                  ),
+                                ),
+                              ]),
+                        ),
+                      )
+                    ],
+                  ),
                 );
               }),
             ),
@@ -149,10 +134,8 @@ class FavoritesState extends State<Favorites> {
   }
 
   Widget getWidget() {
-    if (_error) {
-      return Center(child: ErrorBox());
-    } else if (_loading) {
-      return Center(child: Spinner());
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
     } else {
       return BookList();
     }

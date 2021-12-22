@@ -45,13 +45,15 @@ class BookDetailsState extends State<BookDetails> {
   void initState() {
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      isFavorite();
+      if (Provider.of<UserState>(context, listen: false).loggedIn) {
+        isFavorite();
+      }
     });
   }
 
   Widget BookInfo() {
     return DecoratedBox(
-      position : DecorationPosition.background,
+      position: DecorationPosition.background,
       decoration: BoxDecoration(
         color: const Color(0xFFFFFFFF),
         border: Border.all(
@@ -63,62 +65,59 @@ class BookDetailsState extends State<BookDetails> {
         shape: BoxShape.rectangle,
       ),
       child: Container(
-        padding: const EdgeInsets.all(10),
-        child: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          return Column(
-            mainAxisAlignment : MainAxisAlignment.spaceAround,
-            children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
-                child: Image.network(
-                  widget.coverUrl,
-                  width: constraints.maxWidth/2.5,
-                ),
-              ),
-              //const VerticalDivider(color: Colors.grey, thickness: 5),
-              Column(children: [
-                Text(
-                  widget.title,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                ),
-                Text(
-                  widget.author,
-                  style: TextStyle(fontSize: 20),
-                ),
-              ])
-            ]),
-            const Divider(color: Colors.grey, thickness: 1),
-            Text(
-              "Tymczasowy opis książki",
-              style: TextStyle(fontSize: 15),
-            ),
-            //const Divider(color: Colors.grey, thickness: 1.5)
-          ]);
-        })
-      ),
+          padding: const EdgeInsets.all(10),
+          child: LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+            return Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: Image.network(
+                            widget.coverUrl,
+                            width: constraints.maxWidth / 2.5,
+                          ),
+                        ),
+                        //const VerticalDivider(color: Colors.grey, thickness: 5),
+                        Column(children: [
+                          Text(
+                            widget.title,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 15),
+                          ),
+                          Text(
+                            widget.author,
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        ])
+                      ]),
+                  const Divider(color: Colors.grey, thickness: 1),
+                  Text(
+                    "Tymczasowy opis książki",
+                    style: TextStyle(fontSize: 15),
+                  ),
+                  //const Divider(color: Colors.grey, thickness: 1.5)
+                ]);
+          })),
     );
-
   }
 
-  Widget commentBlock(){
-      if (_comms == null){
-        return const SizedBox.shrink();
-      }
-      else{
-        return _comms! ? Comments(widget.id) : CommentForm(widget.id);
-      }
+  Widget commentBlock() {
+    if (_comms == null) {
+      return const SizedBox.shrink();
+    } else {
+      return _comms! ? Comments(widget.id) : CommentForm(widget.id);
+    }
   }
 
-  Widget CommentBar() {
-
+  Widget commentBar() {
     return Container(
       padding: EdgeInsets.all(10),
       child: DecoratedBox(
-          position : DecorationPosition.background,
+          position: DecorationPosition.background,
           decoration: BoxDecoration(
             color: const Color(0xFFFFFFFF),
             border: Border.all(
@@ -129,39 +128,37 @@ class BookDetailsState extends State<BookDetails> {
             borderRadius: BorderRadius.zero,
             shape: BoxShape.rectangle,
           ),
-          child: Column(
-            children: [
+          child: Column(children: [
             Container(
               padding: const EdgeInsets.all(10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center, 
-                children: [
+              child:
+                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Consumer<UserState>(builder: (context, state, child) {
+                  return state.loggedIn
+                      ? Expanded(
+                          child: OutlinedButton(
+                              child: const Text('Napisz recenzję'),
+                              onPressed: () {
+                                setState(() {
+                                  _comms = false;
+                                });
+                              }),
+                        )
+                      : const SizedBox.shrink();
+                }),
                 Expanded(
                   child: OutlinedButton(
-                    child: const Text('Napisz recenzję'),
-                    onPressed: () {
-                      setState(() {
-                        _comms = false;
-                      });
-                    }
-                  ),
-                ),
-                Expanded(
-                  child: OutlinedButton(
-                    child: const Text('Czytaj recenzje'),
-                    onPressed: () {
-                      setState(() {
-                        _comms = true;
-                      });
-                    }
-                  ),
+                      child: const Text('Czytaj recenzje'),
+                      onPressed: () {
+                        setState(() {
+                          _comms = true;
+                        });
+                      }),
                 ),
               ]),
             ),
             commentBlock()
-          ]
-          )
-      ),
+          ])),
     );
   }
 
@@ -205,39 +202,40 @@ class BookDetailsState extends State<BookDetails> {
     }
   }
 
-  Widget Favorites_star() {
-    return IconButton(
-      icon: _isFavorite
-          ? Icon(
-              Icons.star,
-              color: Colors.yellow,
+  Widget favoritesStar() {
+    return Consumer<UserState>(builder: (context, state, child) {
+      return state.loggedIn
+          ? IconButton(
+              icon: _isFavorite
+                  ? const Icon(
+                      Icons.star,
+                      color: Colors.yellow,
+                    )
+                  : const Icon(
+                      Icons.star_border,
+                      color: Colors.yellow,
+                    ),
+              tooltip: 'Add to favorites',
+              onPressed: () {
+                toggleFavorite();
+              },
             )
-          : Icon(
-              Icons.star_border,
-              color: Colors.yellow,
-            ),
-      tooltip: 'Add to favorites',
-      onPressed: () {
-        toggleFavorite();
-      },
-    );
+          : const SizedBox.shrink();
+    });
   }
-
-  
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
-          actions: <Widget>[Favorites_star()],
+          actions: <Widget>[favoritesStar()],
         ),
         body: SingleChildScrollView(
             child: Column(
           children: [
             BookInfo(),
-            CommentBar(),
+            commentBar(),
           ],
         )));
   }
