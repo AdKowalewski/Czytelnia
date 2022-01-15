@@ -4,6 +4,8 @@ import 'package:czytelnia/user_state.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+
+import './globals.dart' as globals;
 import './book.dart';
 import './book_details.dart';
 import './pdf_view.dart';
@@ -44,7 +46,7 @@ class FavoritesState extends State<Favorites> {
     final token = Provider.of<UserState>(context, listen: false).token;
     try {
       response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/api/users/favorite'),
+        Uri.parse('${globals.baseURL}/api/users/favorite'),
         headers: <String, String>{
           'Authorization': 'Bearer $token',
         },
@@ -84,7 +86,7 @@ class FavoritesState extends State<Favorites> {
                   child: Row(
                     children: [
                       Image.network(
-                        "http://10.0.2.2:8000/api/books/cover/${book.id}",
+                        "${globals.baseURL}/api/books/cover/${book.id}",
                         width: constraints.maxWidth / 4,
                       ),
                       Expanded(

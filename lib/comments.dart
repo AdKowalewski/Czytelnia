@@ -3,8 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
-
 import 'package:czytelnia/user_state.dart';
+
+import './globals.dart' as globals;
 import './comment.dart';
 
 class Comments extends StatefulWidget {
@@ -46,7 +47,7 @@ class CommentsState extends State<Comments> {
     try {
       response = await http
           .get(Uri.parse(
-              'http://10.0.2.2:8000/api/comments/' + widget.bookId.toString()))
+              '${globals.baseURL}/api/comments/' + widget.bookId.toString()))
           .timeout(const Duration(seconds: 2));
     } catch (e) {
       setState(() {
@@ -79,53 +80,61 @@ class CommentsState extends State<Comments> {
     return Container(
       padding: const EdgeInsets.all(5),
       child: Column(
-        children: comments.map((comment) {
-          return Card(
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                children: [
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            comment.username,
-                            textAlign: TextAlign.left,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 15),
+          children: comments.isNotEmpty
+              ? comments.map((comment) {
+                  return Card(
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      child: Column(
+                        children: [
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    comment.username,
+                                    textAlign: TextAlign.left,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15),
+                                  ),
+                                ),
+                                comment.review
+                                    ? const Icon(Icons.thumb_up_outlined,
+                                        color: Colors.green)
+                                    : const Icon(Icons.thumb_down_outlined,
+                                        color: Colors.red),
+                                Column(
+                                  children: [
+                                    Text(
+                                        "Utworzono : ${comment.createdAt.toString()}"),
+                                    comment.modified
+                                        ? Text(
+                                            "Zmodyfikowano : ${comment.modifiedAt.toString()}")
+                                        : const SizedBox.shrink(),
+                                  ],
+                                )
+                              ]),
+                          const Divider(thickness: 1, color: Colors.grey),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              comment.text,
+                              style: const TextStyle(fontSize: 18),
+                            ),
                           ),
-                        ),
-                        comment.review
-                            ? const Icon(Icons.thumb_up_outlined,
-                                color: Colors.green)
-                            : const Icon(Icons.thumb_down_outlined,
-                                color: Colors.red),
-                        Column(
-                          children: [
-                            Text("Utworzono : ${comment.createdAt.toString()}"),
-                            comment.modified
-                                ? Text(
-                                    "Zmodyfikowano : ${comment.modifiedAt.toString()}")
-                                : const SizedBox.shrink(),
-                          ],
-                        )
-                      ]),
-                  const Divider(thickness: 1, color: Colors.grey),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      comment.text,
-                      style: const TextStyle(fontSize: 18),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }).toList(),
-      ),
+                  );
+                }).toList()
+              : [
+                  Card(
+                      child: Container(
+                          padding: const EdgeInsets.all(10),
+                          child: const Text("Brak Komentarzy")))
+                ]),
     );
   }
 
@@ -187,7 +196,7 @@ class _CommentFormState extends State<CommentForm> {
     try {
       final token = Provider.of<UserState>(context, listen: false).token;
       response = await http.put(
-          Uri.parse('http://10.0.2.2:8000/api/comments/${widget.bookId}'),
+          Uri.parse('${globals.baseURL}/api/comments/${widget.bookId}'),
           body: jsonEncode(<String, String>{
             'text': _reviewText,
             'review': _review.toString()
@@ -227,7 +236,7 @@ class _CommentFormState extends State<CommentForm> {
     try {
       final token = Provider.of<UserState>(context, listen: false).token;
       response = await http.get(
-          Uri.parse('http://10.0.2.2:8000/api/comments/${widget.bookId}/user'),
+          Uri.parse('${globals.baseURL}/api/comments/${widget.bookId}/user'),
           headers: <String, String>{
             'Authorization': 'Bearer $token',
           }).timeout(const Duration(seconds: 2));
@@ -275,7 +284,7 @@ class _CommentFormState extends State<CommentForm> {
     try {
       final token = Provider.of<UserState>(context, listen: false).token;
       response = await http.delete(
-          Uri.parse('http://10.0.2.2:8000/api/comments/${widget.bookId}'),
+          Uri.parse('${globals.baseURL}/api/comments/${widget.bookId}'),
           headers: <String, String>{
             'Authorization': 'Bearer $token',
           }).timeout(const Duration(seconds: 2));

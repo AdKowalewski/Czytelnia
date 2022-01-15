@@ -3,6 +3,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
+import './globals.dart' as globals;
 import './book.dart';
 import './book_details.dart';
 
@@ -68,7 +70,7 @@ class BookLibState extends State<BookLib> {
     var response;
     try {
       response = await http
-          .get(Uri.parse('http://10.0.2.2:8000/api/books/list?page_num=$_page'))
+          .get(Uri.parse('${globals.baseURL}/api/books/list?page_num=$_page'))
           .timeout(const Duration(seconds: 2));
     } catch (e) {
       showError("Nie udało się połączyć z serwerem");
@@ -133,7 +135,7 @@ class BookLibState extends State<BookLib> {
                       aspectRatio:
                           constraints.maxWidth / (constraints.maxHeight / 1.23),
                       child: Image.network(
-                        "http://10.0.2.2:8000/api/books/cover/${book.id}",
+                        "${globals.baseURL}/api/books/cover/${book.id}",
                         fit: BoxFit.fill,
                       ),
                     ),
@@ -154,7 +156,8 @@ class BookLibState extends State<BookLib> {
                 id: book.id,
                 title: book.title,
                 author: book.author,
-                coverUrl: "http://10.0.2.2:8000/api/books/cover/${book.id}",
+                coverUrl: "${globals.baseURL}" + book.cover,
+                //coverUrl: "${globals.baseURL}/api/books/cover/${book.id}",
                 // content: null,
                 // comments: null,
               );
@@ -178,7 +181,7 @@ class BookLibState extends State<BookLib> {
   //               child: Column(
   //                 children: [
   //                   Image.network(
-  //                     "http://10.0.2.2:8000/api/books/${book.id}/cover",
+  //                     "${globals.baseURL}/api/books/${book.id}/cover",
   //                   ),
   //                   const Divider(thickness: 1, color: Colors.grey),
   //                   Flexible(
@@ -195,7 +198,7 @@ class BookLibState extends State<BookLib> {
   //               id: book.id,
   //               title: book.title,
   //               author: book.author,
-  //               coverUrl: "http://10.0.2.2:8000/api/books/${book.id}/cover",
+  //               coverUrl: "${globals.baseURL}/api/books/${book.id}/cover",
   //               // content: null,
   //               // comments: null,
   //             );

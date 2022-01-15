@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as json;
 import 'package:provider/provider.dart';
+
+import './globals.dart' as globals;
 import './user_state.dart';
 
 class Auth extends StatelessWidget {
@@ -166,8 +168,8 @@ class _LoginFormState extends State<LoginForm> {
     });
     var response;
     final url = widget.isLogin
-        ? 'http://10.0.2.2:8000/api/users/login'
-        : 'http://10.0.2.2:8000/api/users/register';
+        ? '${globals.baseURL}/api/users/login'
+        : '${globals.baseURL}/api/users/register';
     try {
       response = await http
           .post(Uri.parse(url),

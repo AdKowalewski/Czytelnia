@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart' as pdf;
 
+import './globals.dart' as globals;
+
 class PDFView extends StatefulWidget {
   int bookId;
   PDFView(this.bookId, {Key? key}) : super(key: key);
@@ -42,7 +44,7 @@ class _MyAppState extends State<PDFView> {
     final token = Provider.of<UserState>(context, listen: false).token;
     print("PO TOkENIE");
     var file = await DefaultCacheManager().getSingleFile(
-      'http://10.0.2.2:8000/api/books/pdf/${widget.bookId}',
+      '${globals.baseURL}/api/books/pdf/${widget.bookId}',
       headers: <String, String>{
         'Authorization': 'Bearer $token',
       },

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
+import './globals.dart' as globals;
 import './comments.dart';
 import './book.dart';
 import './user_state.dart';
@@ -44,6 +45,7 @@ class BookDetailsState extends State<BookDetails> {
   @override
   void initState() {
     super.initState();
+    debugPrint(widget.coverUrl);
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       if (Provider.of<UserState>(context, listen: false).loggedIn) {
         isFavorite();
@@ -77,7 +79,7 @@ class BookDetailsState extends State<BookDetails> {
                         ClipRRect(
                           borderRadius: BorderRadius.circular(8.0),
                           child: Image.network(
-                            widget.coverUrl,
+                            "${globals.baseURL}/api/books/cover/${widget.id}",
                             width: constraints.maxWidth / 2.5,
                           ),
                         ),
@@ -167,7 +169,7 @@ class BookDetailsState extends State<BookDetails> {
     try {
       final token = Provider.of<UserState>(context, listen: false).token;
       response = await http.put(
-          Uri.parse('http://10.0.2.2:8000/api/users/favorite/${widget.id}'),
+          Uri.parse('${globals.baseURL}/api/users/favorite/${widget.id}'),
           headers: <String, String>{
             'Authorization': 'Bearer $token',
           });
@@ -186,7 +188,7 @@ class BookDetailsState extends State<BookDetails> {
     var response;
     final token = Provider.of<UserState>(context, listen: false).token;
     response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/api/users/favorite/${widget.id}'),
+        Uri.parse('${globals.baseURL}/api/users/favorite/${widget.id}'),
         headers: <String, String>{
           'Authorization': 'Bearer $token',
         });

@@ -39,7 +39,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserState>(builder: (context, state, child){
+    return Consumer<UserState>(builder: (context, state, child) {
       return Scaffold(
         appBar: AppBar(
           title: const Text('Czytelnia'),
@@ -58,7 +58,8 @@ class _HomeState extends State<Home> {
                 icon: const Icon(Icons.login),
                 tooltip: 'Logowanie',
                 onPressed: () => showDialog<String>(
-                    context: context, builder: (BuildContext context) => Auth())),
+                    context: context,
+                    builder: (BuildContext context) => Auth())),
             IconButton(
               icon: const Icon(Icons.plagiarism),
               tooltip: 'Biblioteka książek',
@@ -69,16 +70,18 @@ class _HomeState extends State<Home> {
                 }));
               },
             ),
-            state.loggedIn ? IconButton(
-              icon: const Icon(Icons.favorite_border),
-              tooltip: 'Ulubione',
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute<void>(builder: (BuildContext context) {
-                  return Favorites();
-                }));
-              },
-            ) : const SizedBox.shrink(),
+            state.loggedIn
+                ? IconButton(
+                    icon: const Icon(Icons.favorite_border),
+                    tooltip: 'Ulubione',
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute<void>(
+                          builder: (BuildContext context) {
+                        return Favorites();
+                      }));
+                    },
+                  )
+                : const SizedBox.shrink(),
           ],
         ),
         body: const Center(
