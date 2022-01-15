@@ -31,16 +31,18 @@ dependencies:
     sdk: flutter
   http: ^0.13.4 
   provider: ^6.0.0
-  #advance_pdf_viewer: any
   flutter_pdfview : any
+
   flutter_cache_manager: any
   pspdfkit_flutter: any
-  #path_provider:
+  dio : any
+  dio_http_cache : any
+  shared_preferences: any
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  path_provider: ^2.0.7
+  #path_provider: ^2.0.7
 
 dev_dependencies:
   flutter_test:

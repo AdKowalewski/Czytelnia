@@ -4,11 +4,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import './favorites.dart';
 import './book_lib.dart';
 import './auth.dart';
 import './user_state.dart';
-import './pdf_view.dart';
 
 void main() => runApp(
     ChangeNotifierProvider(create: (ctx) => UserState(), child: const MyApp()));
@@ -21,6 +21,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    void getPreferences() async{
+      // SharedPreferences prefs;
+      // try{
+      //   prefs = await SharedPreferences.getInstance();
+      // }
+      // catch(e){
+      //   SharedPreferences.setMockInitialValues({});
+      // }
+      final prefs = await SharedPreferences.getInstance();
+      final bool loggedIn = prefs.getBool('loggedIn') ?? false;
+      if(loggedIn){
+        final int id = prefs.getInt('userID') ?? 0;
+        final String token = prefs.getString('token') ?? "";
+        Provider.of<UserState>(context, listen: false).logIn(id, token);
+      }
+    }
+    getPreferences();
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
       title: _title,

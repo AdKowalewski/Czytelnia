@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/file.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:http/http.dart' as http;
 
 import './globals.dart' as globals;
@@ -98,6 +100,13 @@ class BookLibState extends State<BookLib> {
     });
   }
 
+  Future<File> fetchCover(int id) async{
+    final file = await DefaultCacheManager().getSingleFile(
+      '${globals.baseURL}/api/books/cover/$id'
+    );
+    return file;
+  }
+
   // Widget ErrorBox() {
   //   return Text(_error);
   // }
@@ -134,10 +143,21 @@ class BookLibState extends State<BookLib> {
                     AspectRatio(
                       aspectRatio:
                           constraints.maxWidth / (constraints.maxHeight / 1.23),
-                      child: Image.network(
-                        "${globals.baseURL}/api/books/cover/${book.id}",
-                        fit: BoxFit.fill,
-                      ),
+                      // child: Image.network(
+                      //   "${globals.baseURL}/api/books/cover/${book.id}",
+                      //   fit: BoxFit.fill,
+                      // ),
+                      child : FutureBuilder(
+                        future: fetchCover(book.id),
+                        builder: (context, AsyncSnapshot<File> snapshot) {
+                          if (snapshot.hasData){
+                            return Image.file(snapshot.data!, fit: BoxFit.fill);
+                          }
+                          else{
+                            return const CircularProgressIndicator();
+                          }
+                        }
+                      )
                     ),
                     Divider(thickness: 1, color: Colors.grey),
                     Flexible(

@@ -42,15 +42,19 @@ class _MyAppState extends State<PDFView> {
     // File urlFile = await File('$dir.path/assets/notka.pdf');
     // await Pspdfkit.present(urlFile.path);
     final token = Provider.of<UserState>(context, listen: false).token;
-    print("PO TOkENIE");
-    var file = await DefaultCacheManager().getSingleFile(
-      '${globals.baseURL}/api/books/pdf/${widget.bookId}',
-      headers: <String, String>{
-        'Authorization': 'Bearer $token',
-      },
-    );
-    return file.path;
-    //await Pspdfkit.present(file.path);
+    var file;
+    try{
+      file = await DefaultCacheManager().getSingleFile(
+        '${globals.baseURL}/api/books/pdf/${widget.bookId}',
+        headers: <String, String>{
+          'Authorization': 'Bearer $token',
+        })
+        .timeout(const Duration(seconds: 2));
+        return file.path;
+    }
+    catch(e){
+        return "";
+    }
   }
 
   Widget PDFRender() {
@@ -58,6 +62,11 @@ class _MyAppState extends State<PDFView> {
         future: getPDF(),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.hasData) {
+            if(snapshot.data == ""){
+              return const Center(
+                child: Text("Książka nie została zapisana."),
+            );
+            }
             return pdf.PDFView(
               filePath: snapshot.data,
               enableSwipe: true,
@@ -77,8 +86,8 @@ class _MyAppState extends State<PDFView> {
               },
             );
           } else {
-            return Column(
-              children: [CircularProgressIndicator()],
+            return const Center(
+              child: CircularProgressIndicator(),
             );
           }
         });

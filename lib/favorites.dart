@@ -2,12 +2,13 @@ import 'dart:convert';
 import 'package:czytelnia/user_state.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/file.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
 import './globals.dart' as globals;
 import './book.dart';
-import './book_details.dart';
 import './pdf_view.dart';
 
 class Favorites extends StatefulWidget {
@@ -44,12 +45,28 @@ class FavoritesState extends State<Favorites> {
     });
     var response;
     final token = Provider.of<UserState>(context, listen: false).token;
+    // try {
+    //   response = await http.get(
+    //     Uri.parse('${globals.baseURL}/api/users/favorite'),
+    //     headers: <String, String>{
+    //       'Authorization': 'Bearer $token',
+    //     },
+    //   );
+    // } catch (e) {
+    //   showError("Nie udało się połączyć z serwerem");
+    //   return;
+    // }
+
     try {
-      response = await http.get(
-        Uri.parse('${globals.baseURL}/api/users/favorite'),
-        headers: <String, String>{
-          'Authorization': 'Bearer $token',
-        },
+      final options = globals.cacheOptions;
+
+      options.headers = {'Authorization': 'Bearer $token'};
+      response = await globals.dio.get(
+        '/api/users/favorite',
+        options : options
+        // headers: <String, String>{
+        //   'Authorization': 'Bearer $token',
+        // },
       );
     } catch (e) {
       showError("Nie udało się połączyć z serwerem");
@@ -57,7 +74,7 @@ class FavoritesState extends State<Favorites> {
     }
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      Iterable i = jsonDecode(response.body);
+      Iterable i = jsonDecode(response.data);
       List<Book> newBooks =
           List<Book>.from(i.map((json) => Book.fromJson(json)));
       setState(() {
@@ -69,6 +86,13 @@ class FavoritesState extends State<Favorites> {
     setState(() {
       _loading = false;
     });
+  }
+
+  Future<File> fetchCover(int id) async{
+    final file = await DefaultCacheManager().getSingleFile(
+      '${globals.baseURL}/api/books/cover/$id'
+    );
+    return file;
   }
 
   Widget BookList() {
@@ -85,10 +109,24 @@ class FavoritesState extends State<Favorites> {
                 return IntrinsicHeight(
                   child: Row(
                     children: [
-                      Image.network(
-                        "${globals.baseURL}/api/books/cover/${book.id}",
-                        width: constraints.maxWidth / 4,
+                      FutureBuilder(
+                        future: fetchCover(book.id),
+                        builder: (context, AsyncSnapshot<File> snapshot) {
+                          if (snapshot.hasData){
+                            return Image.file(
+                              snapshot.data!,
+                              width: constraints.maxWidth / 4,
+                              );
+                          }
+                          else{
+                            return const CircularProgressIndicator();
+                          }
+                        }
                       ),
+                      // Image.network(
+                      //   "${globals.baseURL}/api/books/cover/${book.id}",
+                      //   width: constraints.maxWidth / 4,
+                      // ),
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 35),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as json;
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import './globals.dart' as globals;
 import './user_state.dart';
@@ -27,27 +28,31 @@ class Auth extends StatelessWidget {
                         child: const Text('Zarejstruj się'),
                       )
                     : const SizedBox.shrink(),
-                !state.loggedIn
-                    ? OutlinedButton(
-                        onPressed: () {
-                          Navigator.pop(context, 'login');
-                          showDialog<String>(
-                              context: context,
-                              builder: (BuildContext context) =>
-                                  LoginForm(true));
-                        },
-                        child: const Text('Zaloguj się'),
-                      )
-                    : const SizedBox.shrink(),
-                state.loggedIn
-                    ? OutlinedButton(
-                        onPressed: () {
-                          Navigator.pop(context, 'logout');
-                          state.logOut();
-                        },
-                        child: const Text('Wyloguj się'),
-                      )
-                    : const SizedBox.shrink(),
+ 
+                    Expanded(
+                      child: OutlinedButton(
+                          onPressed: () {
+                            Navigator.pop(context, 'login');
+                            showDialog<String>(
+                                context: context,
+                                builder: (BuildContext context) =>
+                                    LoginForm(true));
+                          },
+                          child: !state.loggedIn 
+                            ? const Text('Zaloguj się')
+                            : const Text('Przeloguj się')
+                        ),
+                    )
+
+                // state.loggedIn
+                //     ? OutlinedButton(
+                //         onPressed: () {
+                //           Navigator.pop(context, 'logout');
+                //           state.logOut();
+                //         },
+                //         child: const Text('Wyloguj się'),
+                //       )
+                //     : const SizedBox.shrink(),
               ]);
         }));
   }
@@ -188,6 +193,12 @@ class _LoginFormState extends State<LoginForm> {
       String token = json.jsonDecode(response.body)['token'];
       int id = json.jsonDecode(response.body)['id'];
       Provider.of<UserState>(context, listen: false).logIn(id, token);
+
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setBool("loggedIn", true);
+      prefs.setInt("userID", id);
+      prefs.setString("token", token);
+      
       debugPrint(token);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
