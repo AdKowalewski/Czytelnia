@@ -9,7 +9,8 @@ import './globals.dart' as globals;
 
 class PDFView extends StatefulWidget {
   int bookId;
-  PDFView(this.bookId, {Key? key}) : super(key: key);
+  String title;
+  PDFView(this.bookId, this.title, {Key? key}) : super(key: key);
 
   @override
   _MyAppState createState() => _MyAppState();
@@ -43,17 +44,15 @@ class _MyAppState extends State<PDFView> {
     // await Pspdfkit.present(urlFile.path);
     final token = Provider.of<UserState>(context, listen: false).token;
     var file;
-    try{
+    try {
       file = await DefaultCacheManager().getSingleFile(
-        '${globals.baseURL}/api/books/pdf/${widget.bookId}',
-        headers: <String, String>{
-          'Authorization': 'Bearer $token',
-        })
-        .timeout(const Duration(seconds: 2));
-        return file.path;
-    }
-    catch(e){
-        return "";
+          '${globals.baseURL}/api/books/pdf/${widget.bookId}',
+          headers: <String, String>{
+            'Authorization': 'Bearer $token',
+          }).timeout(const Duration(seconds: 2));
+      return file.path;
+    } catch (e) {
+      return "";
     }
   }
 
@@ -62,10 +61,10 @@ class _MyAppState extends State<PDFView> {
         future: getPDF(),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.hasData) {
-            if(snapshot.data == ""){
+            if (snapshot.data == "") {
               return const Center(
                 child: Text("Książka nie została zapisana."),
-            );
+              );
             }
             return pdf.PDFView(
               filePath: snapshot.data,
@@ -97,7 +96,7 @@ class _MyAppState extends State<PDFView> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Temp Title'),
+          title: Text(widget.title),
         ),
         body: PDFRender());
   }

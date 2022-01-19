@@ -61,13 +61,11 @@ class FavoritesState extends State<Favorites> {
       final options = globals.cacheOptions;
 
       options.headers = {'Authorization': 'Bearer $token'};
-      response = await globals.dio.get(
-        '/api/users/favorite',
-        options : options
-        // headers: <String, String>{
-        //   'Authorization': 'Bearer $token',
-        // },
-      );
+      response = await globals.dio.get('/api/users/favorite', options: options
+          // headers: <String, String>{
+          //   'Authorization': 'Bearer $token',
+          // },
+          );
     } catch (e) {
       showError("Nie udało się połączyć z serwerem");
       return;
@@ -88,10 +86,9 @@ class FavoritesState extends State<Favorites> {
     });
   }
 
-  Future<File> fetchCover(int id) async{
-    final file = await DefaultCacheManager().getSingleFile(
-      '${globals.baseURL}/api/books/cover/$id'
-    );
+  Future<File> fetchCover(int id) async {
+    final file = await DefaultCacheManager()
+        .getSingleFile('${globals.baseURL}/api/books/cover/$id');
     return file;
   }
 
@@ -110,19 +107,17 @@ class FavoritesState extends State<Favorites> {
                   child: Row(
                     children: [
                       FutureBuilder(
-                        future: fetchCover(book.id),
-                        builder: (context, AsyncSnapshot<File> snapshot) {
-                          if (snapshot.hasData){
-                            return Image.file(
-                              snapshot.data!,
-                              width: constraints.maxWidth / 4,
+                          future: fetchCover(book.id),
+                          builder: (context, AsyncSnapshot<File> snapshot) {
+                            if (snapshot.hasData) {
+                              return Image.file(
+                                snapshot.data!,
+                                width: constraints.maxWidth / 4,
                               );
-                          }
-                          else{
-                            return const CircularProgressIndicator();
-                          }
-                        }
-                      ),
+                            } else {
+                              return const CircularProgressIndicator();
+                            }
+                          }),
                       // Image.network(
                       //   "${globals.baseURL}/api/books/cover/${book.id}",
                       //   width: constraints.maxWidth / 4,
@@ -163,9 +158,7 @@ class FavoritesState extends State<Favorites> {
           onTap: () {
             Navigator.push(context,
                 MaterialPageRoute<void>(builder: (BuildContext context) {
-              return PDFView(
-                book.id,
-              );
+              return PDFView(book.id, book.title);
             }));
           },
         );
