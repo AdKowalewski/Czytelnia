@@ -8,7 +8,7 @@ An app for reading e-books for android.
 * [Features](#features)
 * [Pictures](#pictures)
 * [Setup](#setup)
-* [Things to improve](#things tom improve)
+* [Things to improve](#things to improve)
 
 ## General Information
 
