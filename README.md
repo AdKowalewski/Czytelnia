@@ -33,6 +33,7 @@ This app is supposed to run in concjution with REST backend: https://github.com/
     <p>Signing in</p>
     <img src='./img/logowanie.png' width=300 height=500>
   </span>
+  </br>
   <span>
     <p>Searching books</p>
     <img src='./img/library.png' width=300 height=500>
