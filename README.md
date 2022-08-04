@@ -1,16 +1,36 @@
-# czytelnia
+# Czytelnia
 
-A new Flutter project.
+An app for reading e-books for android.
 
-## Getting Started
+## Table of Contents
+* [General Info](#general-information)
+* [Technologies Used](#technologies-used)
+* [Features](#features)
+* [Pictures](#pictures)
+* [Setup](#setup)
 
-This project is a starting point for a Flutter application.
+## General Information
 
-A few resources to get you started if this is your first Flutter project:
+An android app that allows you to browse a library of books.
+You can rate books and write reviews  
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+## Technologies Used
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Dart - version 2.14.4
+- Flutter - 2.5.3
+
+## Features
+
+- create account, browse library of books
+- rate books, write reviews
+- mark books as favorite, quick access to favorite books
+- read books, cache books for offline reading
+
+## Pictures
+
+
+
+## Setup
+Dart and Flutter are required.\
+To install all deps change directory to project folder and run: `flutter pub get`\
+To start debug type: `flutter run lib/main.dart` and choose device for emulation.
