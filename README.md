@@ -28,7 +28,7 @@ This app is supposed to run in concjution with REST backend: https://github.com/
 - read books, cache books for offline reading
 
 ## Pictures
-<div style='display:flex; flex-direction: row'>
+<div style="display:flex; flex-direction: row;">
   <div>
     <p>Signing in</p>
     <img src='./img/logowanie.png' width=300 height=500>
