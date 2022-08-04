@@ -13,7 +13,7 @@ An app for reading e-books for android.
 ## General Information
 
 An android app that allows you to browse a library of free books.
-This app is supposed to run in concjution with REST backend: https://github.com/Metelino/Czytelnia_backend. 
+This app is supposed to run in concjution with REST backend: https://github.com/Metelino/CzytelniaBackend. 
 
 ## Technologies Used
 
