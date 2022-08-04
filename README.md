@@ -8,6 +8,7 @@ An app for reading e-books for android.
 * [Features](#features)
 * [Pictures](#pictures)
 * [Setup](#setup)
+* [TODO](#todo)
 
 ## General Information
 
@@ -27,11 +28,22 @@ This app is supposed to run in concjution with REST backend: https://github.com/
 - read books, cache books for offline reading
 
 ## Pictures
-
-
+<p>Signing in</p>
+<img src='./img/logowanie.png width=300 height=500>
+<p>Searching books</p>
+<img src='./img/library.png width=300 height=500>
+<p>Book reviews</p>
+<img src='./img/comments.png width=300 height=500>
+<p>Favorite books</p>
+<img src='./img/comments.png width=300 height=500>
+<p>Reading a book (temporary lorem ipsum)</p>
+<img src='./img/comments.png width=300 height=500>
 
 ## Setup
 Dart and Flutter are required.\
 Change directory to project folder and run: `flutter create .` to build app for all platfroms.
 To install all deps change directory to project folder and run: `flutter pub get`\
 To start debug type: `flutter run lib/main.dart` and choose device for emulation (android recommended).
+
+## TODO
+At the moment there is no functionality to search books by name of author.
