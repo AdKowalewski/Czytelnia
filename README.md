@@ -50,4 +50,4 @@ To install all deps change directory to project folder and run: `flutter pub get
 To start debug type: `flutter run lib/main.dart` and choose device for emulation (android recommended).
 
 ## TODO
-At the moment there is no functionality to search books by name of author.
+At the moment there is no functionality to search books by name or author.
