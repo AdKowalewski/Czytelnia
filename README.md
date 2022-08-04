@@ -29,23 +29,23 @@ This app is supposed to run in concjution with REST backend: https://github.com/
 
 ## Pictures
 <div style="display:flex; flex-direction: row;">
-  <div>
+  <div style='width: fit-content'>
     <p>Signing in</p>
     <img src='./img/logowanie.png' width=300 height=500>
   </div>
-  <div>
+  <div style='width: fit-content'>
     <p>Searching books</p>
     <img src='./img/library.png' width=300 height=500>
   </div>
-  <div>
+  <div style='width: fit-content'>
     <p>Book reviews</p>
     <img src='./img/comments.png' width=300 height=500>
    </div>
-  <div>
+  <div style='width: fit-content'>
     <p>Favorite books</p>
     <img src='./img/comments.png' width=300 height=500>
   </div>
-  <div>
+  <div style='width: fit-content'>
     <p>Reading a book (temporary lorem ipsum)</p>
     <img src='./img/comments.png' width=300 height=500>
   </div>
