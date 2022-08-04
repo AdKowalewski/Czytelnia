@@ -11,8 +11,8 @@ An app for reading e-books for android.
 
 ## General Information
 
-An android app that allows you to browse a library of books.
-You can rate books and write reviews  
+An android app that allows you to browse a library of free books.
+This app is supposed to run in concjution with REST backend: https://github.com/Metelino/Czytelnia_backend. 
 
 ## Technologies Used
 
@@ -32,5 +32,6 @@ You can rate books and write reviews
 
 ## Setup
 Dart and Flutter are required.\
+Change directory to project folder and run: `flutter create .` to build app for all platfroms.
 To install all deps change directory to project folder and run: `flutter pub get`\
-To start debug type: `flutter run lib/main.dart` and choose device for emulation.
+To start debug type: `flutter run lib/main.dart` and choose device for emulation (android recommended).
