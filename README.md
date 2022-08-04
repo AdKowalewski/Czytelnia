@@ -28,29 +28,17 @@ This app is supposed to run in concjution with REST backend: https://github.com/
 - read books, cache books for offline reading
 
 ## Pictures
-<div style="display:flex; flex-direction: row;">
-  <span>
     <p>Signing in</p>
     <img src='./img/logowanie.png' width=300 height=500>
-  </span>
   </br>
-  <span>
     <p>Searching books</p>
     <img src='./img/library.png' width=300 height=500>
-  </span>
-  <span>
     <p>Book reviews</p>
     <img src='./img/comments.png' width=300 height=500>
-  </span>
-  <span>
     <p>Favorite books</p>
     <img src='./img/comments.png' width=300 height=500>
-  </span>
-  <span>
     <p>Reading a book (temporary lorem ipsum)</p>
     <img src='./img/comments.png' width=300 height=500>
-  </span>
-</div>
 
 ## Setup
 Dart and Flutter are required.\
