@@ -36,7 +36,7 @@ This app is supposed to run in concjution with REST backend: https://github.com/
   <div>
     <p>Searching books</p>
     <img src='./img/library.png' width=300 height=500>
-   </div>
+  </div>
   <div>
     <p>Book reviews</p>
     <img src='./img/comments.png' width=300 height=500>
