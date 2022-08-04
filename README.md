@@ -8,7 +8,7 @@ An app for reading e-books for android.
 * [Features](#features)
 * [Pictures](#pictures)
 * [Setup](#setup)
-* [Things to improve](#things to improve)
+* [TODO](#todo)
 
 ## General Information
 
@@ -49,5 +49,5 @@ Change directory to project folder and run: `flutter create .` to build app for 
 To install all deps change directory to project folder and run: `flutter pub get`\
 To start debug type: `flutter run lib/main.dart` and choose device for emulation (android recommended).
 
-## Things to improve
+## TODO
 At the moment there is no functionality to search books by name of author.
